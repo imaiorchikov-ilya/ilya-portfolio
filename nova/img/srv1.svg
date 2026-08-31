@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22293a"/>
+      <stop offset="100%" stop-color="#141824"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <ellipse cx="600" cy="720" rx="550" ry="100" fill="#0b0e16" opacity="0.5"/>
+  <path d="M480 200 Q440 320 450 500 Q460 620 520 680" fill="none" stroke="#2e2218" stroke-width="90" stroke-linecap="round"/>
+  <path d="M720 200 Q760 320 750 500 Q740 620 680 680" fill="none" stroke="#2e2218" stroke-width="90" stroke-linecap="round"/>
+  <ellipse cx="600" cy="300" rx="85" ry="110" fill="#cc997d"/>
+  <ellipse cx="560" cy="295" rx="10" ry="6" fill="#1f1510"/>
+  <ellipse cx="640" cy="295" rx="10" ry="6" fill="#1f1510"/>
+  <path d="M585 320 Q600 332 615 320" fill="none" stroke="#a65d4f" stroke-width="3" stroke-linecap="round"/>
+  <rect x="320" y="450" width="560" height="200" rx="16" fill="#1e2435" stroke="rgba(255,127,94,0.2)" stroke-width="2"/>
+  <rect x="350" y="480" width="160" height="6" rx="3" fill="#ff7f5e" opacity="0.8"/>
+  <rect x="350" y="505" width="100" height="6" rx="3" fill="#82c0c7" opacity="0.6"/>
+  <circle cx="420" cy="580" r="35" fill="#ff7f5e" opacity="0.12"/>
+  <circle cx="780" cy="600" r="25" fill="#7791f8" opacity="0.12"/>
+  <path d="M480 400 Q600 440 720 400" fill="none" stroke="#ff7f5e" stroke-width="2" opacity="0.3"/>
+</svg>

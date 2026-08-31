@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Илья AI — портфолио</title>
+<meta name="description" content="Шесть AI-проектов: VPN через Telegram, AI-агенты, контент-фабрика, сайты, автоматизация, AI-музыка. Плюс сайт салона красоты NOVA." />
+<meta name="theme-color" content="#050608" />
+<meta name="color-scheme" content="dark" />
+<style>
+  :root { --bg:#050608; --ink:#f5f6f8; --ink-2:#a8b0bd; --ink-3:#5a6473; --accent:#5eead4; --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.12); }
+  *,*::before,*::after { box-sizing:border-box; }
+  html { background:var(--bg); }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; line-height:1.5; padding:48px 24px; max-width:1080px; margin:0 auto; }
+  .eyebrow { font-family:ui-monospace,monospace; font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:.15em; }
+  h1 { font-size:clamp(36px,5vw,56px); margin:8px 0 16px; letter-spacing:-.025em; font-weight:500; }
+  h1 em { font-style:italic; font-family:"Instrument Serif","Times New Roman",serif; color:var(--accent); font-weight:400; }
+  .lede { color:var(--ink-2); font-size:18px; max-width:680px; margin:0 0 40px; }
+  h2 { font-size:14px; font-weight:500; color:var(--ink-3); text-transform:uppercase; letter-spacing:.12em; margin:48px 0 16px; font-family:ui-monospace,monospace; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+  a.card { display:block; padding:22px; border:1px solid var(--line); border-radius:14px; color:var(--ink); text-decoration:none; transition:border-color .2s; }
+  a.card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  a.card .label { color:var(--accent); font-size:11px; text-transform:uppercase; letter-spacing:.12em; font-family:ui-monospace,monospace; }
+  a.card h3 { margin:8px 0 6px; font-size:18px; font-weight:500; }
+  a.card p { margin:0; color:var(--ink-2); font-size:14px; line-height:1.5; }
+  a.card.featured { border-color:var(--accent); background:linear-gradient(135deg,rgba(94,234,212,.05),transparent); }
+  .legacy { color:var(--ink-3); font-size:12px; font-family:ui-monospace,monospace; }
+  footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--line); color:var(--ink-3); font-size:12px; font-family:ui-monospace,monospace; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">// ilya.ai portfolio · 2026</div>
+  <h1>Шесть проектов. <em>Один стек.</em></h1>
+  <p class="lede">AI-агенты, контент-фабрика, VPN-инфраструктура, автоматизация no-code, лендинги, AI-музыка. Каждый проект — рабочий кейс с архитектурой, метриками и юнит-экономикой.</p>
+
+  <h2>// проекты</h2>
+  <div class="grid">
+    <a class="card featured" href="projects/vpn/index.html">
+      <div class="label">B2C SaaS · MVP 7-10 дней</div>
+      <h3>VPN через Telegram-бота</h3>
+      <p>VLESS+Reality на Hetzner/3X-UI. Prodamus, реферальная программа. Юнит-экономика и roadmap.</p>
+    </a>
+    <a class="card featured" href="projects/chatbot/index.html">
+      <div class="label">AI-агенты · живое демо</div>
+      <h3>AI-агент для бизнеса</h3>
+      <p>D2C-ассистент в 3 каналах: Instagram + Telegram + VK. Квалификация лидов, CRM, сценарии.</p>
+    </a>
+    <a class="card" href="projects/automation/index.html">
+      <div class="label">No-code · n8n + AI</div>
+      <h3>Автоматизация процессов</h3>
+      <p>14 рабочих пайплайнов: лид-скоринг, контент-завод, AI-продавец, автоотчёты. ROI от 30 000 ₽/мес.</p>
+    </a>
+    <a class="card" href="projects/content/index.html">
+      <div class="label">Контент-фабрика · 30/день</div>
+      <h3>AI-контент и видео</h3>
+      <p>Reels, Shorts, TikTok на Veo 3.1, Kling 2.6, Sora 2. Бренд-киты и рекламные креативы.</p>
+    </a>
+    <a class="card" href="projects/website/index.html">
+      <div class="label">Веб-разработка · AEO</div>
+      <h3>Сайты под ключ</h3>
+      <p>Премиум-лендинги для specialty-кофеен, ресторанов, бьюти. AEO-оптимизация под ChatGPT.</p>
+    </a>
+    <a class="card" href="projects/elevenmusic/index.html">
+      <div class="label">AI-музыка · легально</div>
+      <h3>ElevenMusic Reels</h3>
+      <p>AI-саундтреки для рилсов через ElevenLabs + Kobalt+Merlin. Kейс и гипотезы монетизации.</p>
+    </a>
+  </div>
+
+  <h2>// отдельные сайты</h2>
+  <div class="grid">
+    <a class="card" href="nova/">
+      <div class="label">лендинг · beauty</div>
+      <h3>NOVA · салон красоты</h3>
+      <p>Лендинг салона красоты. Адаптив 360/768/1440, Schema.org, Open Graph. 17 секций, 12 КБ.</p>
+    </a>
+    <a class="card" href="ilya-vizitka/">
+      <div class="label">legacy · ilya.ai</div>
+      <h3>Сайт-визитка</h3>
+      <p>Старая версия визитки с 6 проектами. <span class="legacy">// оставлен как legacy, новый путь — /projects/</span></p>
+    </a>
+  </div>
+
+  <footer>
+    <span>ilya.ai · 2026</span> · <a href="projects/" style="color:var(--accent);text-decoration:none">все проекты →</a> · <a href="nova/" style="color:var(--accent);text-decoration:none">nova</a>
+  </footer>
+</body>
+</html>

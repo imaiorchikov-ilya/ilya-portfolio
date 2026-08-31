@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI-автоматизация — no-code пайплайны для бизнеса · Илья AI</title>
+<meta name="description" content="Автоматизация бизнес-процессов на n8n, Make, BotHelp, Tribute. AI-агенты вместо сотрудников на рутине. От 30 000 ₽." />
+<meta name="theme-color" content="#0a0a0a" />
+<style>
+  :root {
+    --bg: #0a0a0a; --ink: #f5f5f7; --ink-2: #a8a8b3; --ink-3: #6b6b76;
+    --accent: #5eead4; --accent-2: #2dd4bf; --warn: #f59e0b; --danger: #ef4444;
+    --line: rgba(245,245,247,.08); --line-2: rgba(245,245,247,.14);
+    --mono: ui-monospace, "JetBrains Mono", monospace;
+    --serif: "Cormorant Garamond", "Playfair Display", "Times New Roman", serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Inter", -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 2; }
+  a { color: inherit; text-decoration: none; }
+
+  /* Top bar */
+  .topbar { padding: 18px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .topbar a { color: var(--ink-2); }
+  .topbar .crumbs span { margin: 0 8px; color: var(--ink-3); }
+  .topbar .crumbs a:hover { color: var(--accent); }
+
+  /* Hero */
+  .demo-hero { min-height: 80vh; display: grid; place-items: center; padding: 80px 0 60px; text-align: center; position: relative; overflow: hidden; }
+  .demo-hero::before { content: ""; position: absolute; inset: 0; background:
+    radial-gradient(ellipse 60% 80% at 50% 30%, rgba(94,234,212,.12), transparent 70%);
+    pointer-events: none;
+  }
+  .demo-hero .pretitle { font-family: var(--mono); font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: .2em; margin-bottom: 24px; }
+  .demo-hero h1 { font-family: "Inter", sans-serif; font-size: clamp(48px, 8vw, 112px); line-height: .98; font-weight: 700; letter-spacing: -.04em; margin: 0 0 24px; }
+  .demo-hero h1 em { font-style: italic; font-family: var(--serif); font-weight: 400; color: var(--accent); }
+  .demo-hero p { font-size: 18px; color: var(--ink-2); max-width: 600px; margin: 0 auto 36px; line-height: 1.6; }
+  .demo-hero .ctas { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: all .2s; border: 1px solid transparent; cursor: pointer; }
+  .btn.primary { background: var(--accent); color: #0a0a0a; }
+  .btn.primary:hover { background: var(--accent-2); }
+  .btn.ghost { background: transparent; border-color: var(--line-2); color: var(--ink); }
+  .btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  section { padding: 100px 0; border-top: 1px solid var(--line); }
+  .h-eyebrow { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .15em; }
+  h2.h { font-family: "Inter", sans-serif; font-size: clamp(36px, 5vw, 64px); line-height: 1.05; font-weight: 700; letter-spacing: -.025em; margin: 16px 0 16px; max-width: 800px; }
+  h2.h em { font-style: italic; font-family: var(--serif); font-weight: 400; color: var(--accent); }
+  .h-sub { color: var(--ink-2); max-width: 600px; font-size: 16px; margin: 0 0 48px; }
+
+  /* Flow editor mock */
+  .flow-editor { background: #050505; border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 32px; position: relative; overflow: hidden; min-height: 520px; }
+  .flow-editor::before { content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(94,234,212,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(94,234,212,.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none; }
+
+  .flow-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; position: relative; z-index: 1; }
+  .flow-toolbar .l { display: flex; gap: 16px; align-items: center; font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .12em; }
+  .flow-toolbar .l .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .flow-toolbar .r { display: flex; gap: 8px; }
+  .flow-toolbar .r span { background: var(--line); border: 1px solid var(--line-2); padding: 6px 12px; border-radius: 6px; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+
+  .flow-canvas { position: relative; height: 420px; z-index: 1; }
+
+  /* Nodes */
+  .node { position: absolute; background: #0a0a0a; border: 1px solid var(--line-2); border-radius: 12px; padding: 14px; min-width: 200px; transition: all .2s; cursor: pointer; }
+  .node:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(94,234,212,.15); }
+  .node.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(94,234,212,.2); }
+  .node.success { border-color: var(--accent); }
+  .node.error { border-color: var(--danger); }
+  .node.warn { border-color: var(--warn); }
+  .node .head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .node .ico { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; font-size: 14px; flex-shrink: 0; }
+  .node .ix { font-family: var(--mono); font-size: 10px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .12em; }
+  .node .nm { font-size: 13px; font-weight: 500; }
+  .node .desc { font-size: 11px; color: var(--ink-2); margin-top: 4px; line-height: 1.4; }
+  .node .stat { font-family: var(--mono); font-size: 10px; color: var(--ink-3); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; }
+  .node .stat .v { color: var(--accent); }
+
+  /* Connection lines */
+  svg.flow-svg { position: absolute; top: 0; left: 0; width: 760px; height: 420px; pointer-events: none; z-index: 0; }
+  svg.flow-svg path { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: .6; stroke-dasharray: 4 4; animation: dash 20s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -200; } }
+
+  /* Specific node positions */
+  .n-tg { top: 20px; left: 30px; }
+  .n-tg .ico { background: linear-gradient(135deg, #229ED9, #0088cc); color: white; }
+  .n-ai { top: 20px; left: 280px; }
+  .n-ai .ico { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #0a0a0a; }
+  .n-crm { top: 20px; left: 530px; }
+  .n-crm .ico { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+  .n-trib { top: 220px; left: 30px; }
+  .n-trib .ico { background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; }
+  .n-bot { top: 220px; left: 280px; }
+  .n-bot .ico { background: linear-gradient(135deg, #5eead4, #0891b2); color: #0a0a0a; }
+  .n-mail { top: 220px; left: 530px; }
+  .n-mail .ico { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+
+  @media (max-width: 800px) {
+    .flow-canvas { height: 540px; }
+    .n-tg { top: 10px; left: 10px; }
+    .n-ai { top: 10px; left: 220px; }
+    .n-crm { top: 10px; right: 10px; left: auto; }
+    .n-trib { top: 180px; left: 10px; }
+    .n-bot { top: 180px; left: 220px; }
+    .n-mail { top: 180px; right: 10px; left: auto; }
+  }
+
+  /* Node legend */
+  .node-legend { display: flex; gap: 24px; flex-wrap: wrap; padding: 16px; background: rgba(255,255,255,.02); border-radius: 8px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .12em; }
+  .node-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .node-legend .dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* Use cases */
+  .cases { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .case-card { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 24px; transition: all .2s; }
+  .case-card:hover { border-color: var(--accent); }
+  .case-card .ix { font-family: var(--mono); font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: .12em; }
+  .case-card h3 { font-size: 20px; font-weight: 600; margin: 8px 0 8px; letter-spacing: -.01em; }
+  .case-card .before-after { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin: 16px 0; padding: 16px; background: rgba(255,255,255,.02); border-radius: 10px; }
+  .case-card .ba { text-align: center; }
+  .case-card .ba .v { font-family: "Inter", sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+  .case-card .ba.b .v { color: var(--ink-3); }
+  .case-card .ba.a .v { color: var(--accent); }
+  .case-card .ba .l { font-family: var(--mono); font-size: 10px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .12em; margin-top: 4px; }
+  .case-card .arrow { color: var(--ink-3); font-size: 18px; }
+  .case-card .tools { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 12px; }
+  .case-card .tool { font-family: var(--mono); font-size: 10px; background: var(--line); color: var(--ink-2); padding: 3px 8px; border-radius: 4px; }
+  .case-card p { color: var(--ink-2); font-size: 14px; margin: 8px 0 0; line-height: 1.5; }
+  @media (max-width: 800px) { .cases { grid-template-columns: 1fr; } }
+
+  /* ROI table */
+  .roi-table { background: var(--bg); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 32px; }
+  .roi-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--line); align-items: center; }
+  .roi-row.head { background: rgba(255,255,255,.02); font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .12em; }
+  .roi-row .col-task { font-size: 14px; font-weight: 500; }
+  .roi-row .col-was { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .roi-row .col-now { font-family: var(--mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+  .roi-row .col-saved { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+  @media (max-width: 800px) {
+    .roi-row { grid-template-columns: 1fr 1fr; }
+    .roi-row .col-was, .roi-row.head .col-was { display: none; }
+  }
+
+  /* Stack grid */
+  .stack-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .stack-item { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px; text-align: center; transition: all .2s; }
+  .stack-item:hover { border-color: var(--accent); }
+  .stack-item .ico { width: 36px; height: 36px; border-radius: 8px; margin: 0 auto 8px; display: grid; place-items: center; font-size: 16px; font-weight: 600; }
+  .stack-item .nm { font-size: 13px; font-weight: 500; }
+  .stack-item .role { font-family: var(--mono); font-size: 10px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .12em; margin-top: 2px; }
+  @media (max-width: 700px) { .stack-grid { grid-template-columns: 1fr 1fr; } }
+
+  /* Footer note */
+  .note { background: linear-gradient(180deg, transparent, rgba(94,234,212,.06)); border-top: 1px solid var(--line-2); padding: 60px 0; text-align: center; }
+  .note p { font-family: var(--serif); font-size: 24px; font-style: italic; color: var(--ink-2); max-width: 600px; margin: 0 auto 24px; line-height: 1.4; }
+  .note .ctas { display: inline-flex; gap: 12px; }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s cubic-bezier(.4, 0, .2, 1), transform .8s cubic-bezier(.4, 0, .2, 1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal[data-delay="1"] { transition-delay: .1s; }
+  .reveal[data-delay="2"] { transition-delay: .2s; }
+  .reveal[data-delay="3"] { transition-delay: .3s; }
+  .reveal[data-delay="4"] { transition-delay: .4s; }
+  @keyframes nodePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(94,234,212,.4); } 50% { box-shadow: 0 0 0 8px rgba(94,234,212,0); } }
+  .node.active { animation: nodePulse 1.6s ease-in-out infinite; }
+  @keyframes flowDot { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
+  .flow-toolbar .l .dot { animation: flowDot 1.5s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="crumbs">
+      <a href="../../index.html">Портфолио</a>
+      <span>›</span>
+      <span>Проект: AI-автоматизация</span>
+    </div>
+    <div>// case study · no-code пайплайны · n8n · Make · BotHelp</div>
+  </div>
+</div>
+
+<section class="demo-hero reveal" style="border-top:none;">
+  <div class="wrap">
+    <div class="pretitle">// case study 04</div>
+    <figure class="hub-hero-figure" style="margin: 0 0 48px 0; padding: 0; position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--line-2); aspect-ratio: 3/4; background: #0a0806;">
+  <img src="assets/photos/hub-automation.jpg" alt="automation — премиум hero" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.85) contrast(1.05);" loading="eager" decoding="async">
+  <figcaption style="position: absolute; left: 24px; bottom: 18px; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); letter-spacing: .12em; text-transform: uppercase; background: rgba(10,8,6,0.7); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2);">// AUTOMATION</figcaption>
+</figure>
+
+<h1>AI-агенты <em>вместо</em> сотрудников</h1>
+    <p>No-code пайплайны на n8n и Make. AI-боты квалифицируют лидов, отвечают в чатах, обновляют CRM, шлют отчёты. От 30 000 ₽ за процесс, окупаемость — первый месяц.</p>
+    <div class="ctas">
+      <a class="btn primary" href="#flow">Открыть пайплайн →</a>
+      <a class="btn ghost" href="../../index.html">← Назад в портфолио</a>
+    </div>
+  </div>
+</section>
+
+<section id="flow" class="reveal">
+  <div class="wrap">
+    <div class="h-eyebrow">// живой пайплайн</div>
+    <h2 class="h">Один из 14 рабочих <em>процессов.</em></h2>
+    <p class="h-sub">Квалификация входящего лида: Telegram → AI-классификатор → amoCRM. Параллельно — подбор оффера в BotHelp и письмо менеджеру. Полный цикл: 12 секунд.</p>
+
+    <div class="flow-editor">
+      <div class="flow-toolbar">
+        <div class="l">
+          <span class="dot"></span>
+          <span>// lead-qual-v3.n8n · live · 1247 runs / 24h</span>
+        </div>
+        <div class="r">
+          <span>◉ execute</span>
+          <span>⏸ pause</span>
+          <span>↻ retry</span>
+        </div>
+      </div>
+
+      <div class="flow-canvas">
+        <svg class="flow-svg" width="760" height="420">
+          <!-- tg → ai (горизонталь) -->
+          <path d="M 230 70 Q 255 70 280 70" />
+          <!-- ai → crm (горизонталь) -->
+          <path d="M 480 70 Q 505 70 530 70" />
+          <!-- tg → trib (вертикаль вниз, через центр ноды tg) -->
+          <path d="M 130 130 Q 130 180 130 220" />
+          <!-- crm → mail (вертикаль вниз, через центр ноды crm) -->
+          <path d="M 630 130 Q 630 180 630 220" />
+          <!-- trib → bot (горизонтал) -->
+          <path d="M 230 270 Q 255 270 280 270" />
+          <!-- bot → mail (горизонтал) -->
+          <path d="M 480 270 Q 505 270 530 270" />
+        </svg>
+
+        <div class="node n-tg active" onclick="selectNode(this)">
+          <div class="head">
+            <div class="ico">✈</div>
+            <div>
+              <div class="ix">// trigger</div>
+              <div class="nm">Telegram webhook</div>
+            </div>
+          </div>
+          <div class="desc">Новое сообщение в @sales_bot</div>
+          <div class="stat"><span>триггеров/час</span><span class="v">52</span></div>
+        </div>
+
+        <div class="node n-ai success" onclick="selectNode(this)">
+          <div class="head">
+            <div class="ico">◐</div>
+            <div>
+              <div class="ix">// AI node</div>
+              <div class="nm">Claude Sonnet классификатор</div>
+            </div>
+          </div>
+          <div class="desc">Intent → score → summary</div>
+          <div class="stat"><span>avg latency</span><span class="v">1.8s</span></div>
+        </div>
+
+        <div class="node n-crm success" onclick="selectNode(this)">
+          <div class="head">
+            <div class="ico">◆</div>
+            <div>
+              <div class="ix">// action</div>
+              <div class="nm">amoCRM: создать сделку</div>
+            </div>
+          </div>
+          <div class="desc">Воронка «Входящие», теги по score</div>
+          <div class="stat"><span>успех</span><span class="v">99.7%</span></div>
+        </div>
+
+        <div class="node n-trib" onclick="selectNode(this)">
+          <div class="head">
+            <div class="ico">▣</div>
+            <div>
+              <div class="ix">// branch</div>
+              <div class="nm">Tribute: подбор оффера</div>
+            </div>
+          </div>
+          <div class="desc">Если score > 70 → подбор из каталога</div>
+          <div class="stat"><span>конверсия</span><span class="v">+18%</span></div>
+        </div>
+
+        <div class="node n-bot warn" onclick="selectNode(this)">
+          <div class="head">
+            <div class="ico">◎</div>
+            <div>
+              <div class="ix">// bot</div>
+              <div class="nm">BotHelp: сценарий</div>
+            </div>
+          </div>
+          <div class="desc">3 вопроса → оффер → оплата</div>
+          <div class="stat"><span>дойдут до оплаты</span><span class="v">23%</span></div>
+        </div>
+
+        <div class="node n-mail" onclick="selectNode(this)">
+          <div class="head">
+            <div class="ico">✉</div>
+            <div>
+              <div class="ix">// notify</div>
+              <div class="nm">Email менеджеру</div>
+            </div>
+          </div>
+          <div class="desc">Только если score ≥ 80</div>
+          <div class="stat"><span>время отклика</span><span class="v">12s</span></div>
+        </div>
+      </div>
+
+      <div class="node-legend" style="margin-top: 16px;">
+        <span><span class="dot" style="background: var(--accent);"></span>active</span>
+        <span><span class="dot" style="background: var(--accent); opacity: .4;"></span>success</span>
+        <span><span class="dot" style="background: var(--warn);"></span>warning</span>
+        <span><span class="dot" style="background: var(--danger);"></span>error</span>
+        <span><span class="dot" style="background: transparent; border: 1px dashed var(--accent);"></span>branch</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="h-eyebrow">// кейсы</div>
+    <h2 class="h">4 процесса, <em>которые окупились.</em></h2>
+    <p class="h-sub">Каждый кейс — реальный заказчик, реальные метрики. Не «MVP за неделю», а рабочий пайплайн в проде.</p>
+
+    <div class="cases">
+      <article class="case-card reveal">
+        <div class="ix">// case 01</div>
+        <h3>Квалификация лидов для EdTech-школы</h3>
+        <div class="before-after">
+          <div class="ba b"><div class="v">3 мин</div><div class="l">было</div></div>
+          <div class="arrow">→</div>
+          <div class="ba a"><div class="v">12 сек</div><div class="l">стало</div></div>
+        </div>
+        <p>Telegram-бот + AI-классификатор + amoCRM. Менеджер видит уже разогретого лида с тегами и скриптом первого касания.</p>
+        <div class="tools">
+          <span class="tool">n8n</span>
+          <span class="tool">Claude Sonnet</span>
+          <span class="tool">BotHelp</span>
+          <span class="tool">amoCRM</span>
+        </div>
+      </article>
+
+      <article class="case-card reveal">
+        <div class="ix">// case 02</div>
+        <h3>Контент-завод для бренда одежды</h3>
+        <div class="before-after">
+          <div class="ba b"><div class="v">40 ч/мес</div><div class="l">было</div></div>
+          <div class="arrow">→</div>
+          <div class="ba a"><div class="v">3 ч/мес</div><div class="l">стало</div></div>
+        </div>
+        <p>Tilda → Notion-база → n8n → Veo/Kling/Flux. 120 единиц контента в месяц, утверждение в Telegram через бота.</p>
+        <div class="tools">
+          <span class="tool">n8n</span>
+          <span class="tool">Veo 3.1</span>
+          <span class="tool">Kling 2.6</span>
+          <span class="tool">Flux Kontext</span>
+          <span class="tool">Notion</span>
+        </div>
+      </article>
+
+      <article class="case-card reveal">
+        <div class="ix">// case 03</div>
+        <h3>AI-продавец для Telegram-канала</h3>
+        <div class="before-after">
+          <div class="ba b"><div class="v">8%</div><div class="l">конверсия</div></div>
+          <div class="arrow">→</div>
+          <div class="ba a"><div class="v">23%</div><div class="l">конверсия</div></div>
+        </div>
+        <p>Бот задаёт 4 вопроса → AI подбирает оффер → Tribute принимает оплату. Полный цикл без участия человека.</p>
+        <div class="tools">
+          <span class="tool">BotHelp</span>
+          <span class="tool">Claude Sonnet</span>
+          <span class="tool">Tribute</span>
+          <span class="tool">Prodamus</span>
+        </div>
+      </article>
+
+      <article class="case-card reveal">
+        <div class="ix">// case 04</div>
+        <h3>Автоматический отчёт для сети кофеен</h3>
+        <div class="before-after">
+          <div class="ba b"><div class="v">4 ч</div><div class="l">в пятницу</div></div>
+          <div class="arrow">→</div>
+          <div class="ba a"><div class="v">0 ч</div><div class="l">автоматически</div></div>
+        </div>
+        <p>iiko API → PostgreSQL → Claude-саммари → PDF в Telegram владельцу каждый понедельник в 9:00.</p>
+        <div class="tools">
+          <span class="tool">n8n</span>
+          <span class="tool">iiko API</span>
+          <span class="tool">PostgreSQL</span>
+          <span class="tool">Claude Opus</span>
+          <span class="tool">Telegram</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="h-eyebrow">// экономика</div>
+    <h2 class="h">ROI по <em>4 задачам.</em></h2>
+    <p class="h-sub">Средний клиент экономит 47 часов рутины в месяц. Это ≈ 30 000 ₽ на ставке junior-менеджера. Окупаемость автоматизации — 30 дней.</p>
+
+    <div class="roi-table">
+      <div class="roi-row head">
+        <div>задача</div>
+        <div class="col-was">было</div>
+        <div class="col-now">стало</div>
+        <div class="col-saved">экономия / мес</div>
+      </div>
+      <div class="roi-row">
+        <div class="col-task">Квалификация входящих лидов</div>
+        <div class="col-was">3 мин × 50 лидов = 2.5 ч</div>
+        <div class="col-now">12 сек × 50 = автомат</div>
+        <div class="col-saved">≈ 8 500 ₽</div>
+      </div>
+      <div class="roi-row">
+        <div class="col-task">Публикация контента в соцсети</div>
+        <div class="col-was">5 ч/неделю у SMM</div>
+        <div class="col-now">0 ч (по расписанию)</div>
+        <div class="col-saved">≈ 12 000 ₽</div>
+      </div>
+      <div class="roi-row">
+        <div class="col-task">Ответы в директ / чаты</div>
+        <div class="col-was">2 ч/день у менеджера</div>
+        <div class="col-now">30 мин (только сложные)</div>
+        <div class="col-saved">≈ 18 000 ₽</div>
+      </div>
+      <div class="roi-row">
+        <div class="col-task">Еженедельный отчёт руководству</div>
+        <div class="col-was">4 ч у аналитика</div>
+        <div class="col-now">0 ч (автогенерация)</div>
+        <div class="col-saved">≈ 6 000 ₽</div>
+      </div>
+      <div class="roi-row" style="background: rgba(94,234,212,.05);">
+        <div class="col-task" style="font-weight: 600;">Итого</div>
+        <div class="col-was"></div>
+        <div class="col-now"></div>
+        <div class="col-saved" style="font-size: 16px;">≈ 44 500 ₽ / мес</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="h-eyebrow">// стек</div>
+    <h2 class="h">12 инструментов, <em>0 кода.</em></h2>
+    <p class="h-sub">Всё, что нужно для запуска пайплайна, уже есть. Собираем как конструктор.</p>
+
+    <div class="stack-grid">
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #ff6d5a; color: white;">n8n</div>
+        <div class="nm">n8n</div>
+        <div class="role">оркестратор</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #6366f1; color: white;">M</div>
+        <div class="nm">Make</div>
+        <div class="role">оркестратор</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: var(--accent); color: #0a0a0a;">AI</div>
+        <div class="nm">Claude / GPT</div>
+        <div class="role">мозги</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #229ED9; color: white;">TG</div>
+        <div class="nm">Telegram Bot</div>
+        <div class="role">интерфейс</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #a855f7; color: white;">B</div>
+        <div class="nm">BotHelp</div>
+        <div class="role">чат-бот</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #f59e0b; color: white;">T</div>
+        <div class="nm">Tribute</div>
+        <div class="role">оплата</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #ef4444; color: white;">P</div>
+        <div class="nm">Prodamus</div>
+        <div class="role">оплата</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #10b981; color: white;">C</div>
+        <div class="nm">ChatPlace</div>
+        <div class="role">чат-бот</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #0088cc; color: white;">A</div>
+        <div class="nm">amoCRM</div>
+        <div class="role">CRM</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #06b6d4; color: white;">B</div>
+        <div class="nm">Bitrix24</div>
+        <div class="role">CRM</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #000; color: white; border: 1px solid var(--line-2);">N</div>
+        <div class="nm">Notion API</div>
+        <div class="role">база знаний</div>
+      </div>
+      <div class="stack-item reveal">
+        <div class="ico" style="background: #336791; color: white;">PG</div>
+        <div class="nm">PostgreSQL</div>
+        <div class="role">хранилище</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="note reveal">
+  <div class="wrap">
+    <p>«Одна автоматизация окупает себя за месяц. Четыре — заменяют junior-сотрудника.»</p>
+    <div class="ctas">
+      <a class="btn primary" href="../../index.html#contact">Заказать аудит процессов →</a>
+      <a class="btn ghost" href="../chatbot/index.html">Следующий проект: AI-бот →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Reveal observer with safety net
+  (function() {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0, rootMargin: '0px 0px -50px 0px' });
+    els.forEach(el => io.observe(el));
+    setTimeout(() => {
+      els.forEach(el => { if (!el.classList.contains('in')) el.classList.add('in'); });
+    }, 1500);
+  })();
+
+  function selectNode(node) {
+    document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
+    node.classList.add('active');
+    const name = node.querySelector('.nm').textContent;
+    const desc = node.querySelector('.desc').textContent;
+    const stat = node.querySelector('.stat .v').textContent;
+    const statLabel = node.querySelector('.stat span').textContent;
+    alert(`${name}\n\n${desc}\n\n${statLabel}: ${stat}\n\n// В демо: открывается панель с логами, метриками и историей запусков.`);
+  }
+</script>
+
+</body>
+</html>

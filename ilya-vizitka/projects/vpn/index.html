@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Проект: VPN через Telegram-бота — B2C SaaS · Илья AI</title>
+<meta name="description" content="B2C SaaS-кейс: VPN-сервис через Telegram-бота. VLESS+Reality, Prodamus, реферальная программа. Юнит-экономика, архитектура, roadmap." />
+<meta name="theme-color" content="#0a0c10" />
+<style>
+  :root {
+    --bg: #0a0c10; --bg-2: #13171f; --bg-3: #1a1f2b;
+    --line: rgba(255,255,255,.06); --line-2: rgba(255,255,255,.12);
+    --ink: #f5f6f8; --ink-2: #a8b0bd; --ink-3: #5a6473;
+    --accent: #5eead4; --accent-2: #2dd4bf;
+    --violet: #a78bfa; --warm: #f5b947; --red: #f87171; --green: #4ade80;
+    --mono: ui-monospace, "JetBrains Mono", monospace;
+    --sans: "Inter", -apple-system, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 2; }
+  .topbar { padding: 18px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .topbar a { color: var(--ink-2); }
+  .topbar a:hover { color: var(--accent); }
+  .topbar .crumbs span { margin: 0 8px; color: var(--ink-3); }
+
+  section { padding: 80px 0; }
+  .h-eyebrow { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .15em; }
+  h1.h-page { font-size: clamp(40px, 6vw, 80px); line-height: 1.02; font-weight: 500; letter-spacing: -.025em; margin: 14px 0 18px; }
+  h1.h-page em { font-style: italic; font-family: "Instrument Serif", "Times New Roman", serif; color: var(--accent); font-weight: 400; }
+  h2.h { font-size: clamp(28px, 4vw, 48px); line-height: 1.05; font-weight: 500; letter-spacing: -.02em; margin: 16px 0 16px; max-width: 900px; }
+  h2.h em { font-style: italic; font-family: "Instrument Serif", "Times New Roman", serif; color: var(--accent); font-weight: 400; }
+  .h-sub { color: var(--ink-2); max-width: 720px; font-size: 16px; line-height: 1.65; margin: 0 0 48px; }
+  .p { color: var(--ink-2); font-size: 16px; line-height: 1.65; }
+  .p b { color: var(--ink); font-weight: 500; }
+
+  /* Hero */
+  .hero { padding: 60px 0 40px; }
+  .hero .tag { display: inline-flex; gap: 8px; align-items: center; padding: 6px 12px; border: 1px solid var(--line-2); border-radius: 999px; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+  .hero .tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .hero .stats { display: flex; gap: 48px; margin-top: 36px; flex-wrap: wrap; }
+  .hero .stats .s { }
+  .hero .stats .s .v { font-family: var(--mono); font-size: 28px; color: var(--accent); }
+  .hero .stats .s .l { font-size: 13px; color: var(--ink-3); margin-top: 4px; }
+
+  /* Layout: problem→solution */
+  .ps { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .ps .col { padding: 28px; border-radius: 16px; border: 1px solid var(--line); background: var(--bg-2); }
+  .ps .col.bad { border-color: rgba(248,113,113,.25); }
+  .ps .col.good { border-color: rgba(94,234,212,.25); }
+  .ps .col h3 { font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .15em; margin: 0 0 12px; }
+  .ps .col.bad h3 { color: var(--red); }
+  .ps .col.good h3 { color: var(--accent); }
+  .ps .col ul { margin: 12px 0 0; padding-left: 0; list-style: none; }
+  .ps .col li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--ink-2); display: flex; gap: 10px; }
+  .ps .col li::before { content: "→"; color: var(--ink-3); font-family: var(--mono); }
+  .ps .col.bad li::before { color: var(--red); }
+  .ps .col.good li::before { color: var(--accent); }
+
+  /* UX flow */
+  .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 24px; }
+  .flow .step { padding: 18px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-2); position: relative; }
+  .flow .step .n { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .flow .step .t { font-size: 14px; font-weight: 500; margin-top: 8px; }
+  .flow .step .d { font-size: 12px; color: var(--ink-3); margin-top: 6px; line-height: 1.5; }
+  @media (max-width: 980px) { .flow { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Architecture */
+  .arch { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+  .arch .layer { padding: 20px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--bg-2); }
+  .arch .layer .name { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .12em; }
+  .arch .layer .title { font-size: 18px; font-weight: 500; margin: 8px 0 10px; }
+  .arch .layer .desc { font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+  .arch .layer .stack { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .arch .layer .stack span { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border: 1px solid var(--line-2); border-radius: 6px; color: var(--ink-2); }
+
+  /* Pricing */
+  .plans { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 24px; }
+  @media (max-width: 1100px) { .plans { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .plans { grid-template-columns: 1fr; } }
+  .plan { padding: 22px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2); display: flex; flex-direction: column; }
+  .plan.featured { border-color: var(--accent); background: linear-gradient(180deg, rgba(94,234,212,.08), var(--bg-2)); box-shadow: 0 12px 32px rgba(94,234,212,.1); }
+  .plan .name { font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .12em; }
+  .plan.featured .name { color: var(--accent); }
+  .plan .price { font-size: 28px; font-weight: 500; margin-top: 12px; }
+  .plan .price .cur { font-size: 14px; color: var(--ink-3); margin-left: 4px; }
+  .plan .term { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .plan ul { margin: 16px 0 0; padding: 0; list-style: none; }
+  .plan li { font-size: 12px; color: var(--ink-2); padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .plan li::before { content: "✓ "; color: var(--accent); font-family: var(--mono); }
+
+  /* Metrics */
+  .metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 24px; }
+  @media (max-width: 1100px) { .metrics { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric { padding: 22px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-2); text-align: left; }
+  .metric .v { font-family: var(--mono); font-size: 22px; color: var(--accent); font-weight: 500; }
+  .metric .l { font-size: 12px; color: var(--ink-3); margin-top: 6px; line-height: 1.4; }
+  .metric.warn .v { color: var(--warm); }
+  .metric.bad .v { color: var(--red); }
+
+  /* Stack table */
+  .stack-tbl { display: grid; grid-template-columns: 200px 1fr; gap: 0; margin-top: 24px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .stack-tbl .row { display: contents; }
+  .stack-tbl .row > div { padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .stack-tbl .row:last-child > div { border-bottom: none; }
+  .stack-tbl .key { background: var(--bg-2); font-family: var(--mono); color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
+  .stack-tbl .val { color: var(--ink-2); line-height: 1.6; }
+  .stack-tbl .val b { color: var(--ink); font-weight: 500; }
+
+  /* Risks */
+  .risks { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+  @media (max-width: 800px) { .risks { grid-template-columns: 1fr; } }
+  .risk { padding: 18px; border: 1px solid rgba(248,113,113,.2); border-radius: 12px; background: rgba(248,113,113,.04); }
+  .risk .name { font-family: var(--mono); font-size: 12px; color: var(--red); text-transform: uppercase; letter-spacing: .1em; }
+  .risk .name::before { content: "[!] "; }
+  .risk .desc { font-size: 13px; color: var(--ink-2); margin-top: 10px; line-height: 1.6; }
+  .risk .desc b { color: var(--green); }
+
+  /* Roadmap */
+  .roadmap { margin-top: 24px; position: relative; padding-left: 32px; }
+  .roadmap::before { content: ""; position: absolute; left: 8px; top: 8px; bottom: 8px; width: 2px; background: var(--line-2); }
+  .roadmap .phase { position: relative; padding: 18px 0 18px 24px; border-bottom: 1px solid var(--line); }
+  .roadmap .phase:last-child { border-bottom: none; }
+  .roadmap .phase::before { content: ""; position: absolute; left: -28px; top: 24px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  .roadmap .phase .title { font-size: 16px; font-weight: 500; color: var(--accent); font-family: var(--mono); }
+  .roadmap .phase .desc { font-size: 14px; color: var(--ink-2); margin-top: 8px; line-height: 1.6; max-width: 720px; }
+
+  /* SaaS block */
+  .saas { padding: 32px; border: 1px solid var(--accent); border-radius: 16px; background: linear-gradient(135deg, rgba(94,234,212,.05), var(--bg-2)); margin-top: 24px; }
+  .saas .verdict { font-size: 32px; font-weight: 500; color: var(--accent); font-family: "Instrument Serif", serif; font-style: italic; }
+  .saas .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 24px; }
+  @media (max-width: 800px) { .saas .three { grid-template-columns: 1fr; } }
+  .saas .three .b { padding: 18px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--bg); }
+  .saas .three .b .n { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+  .saas .three .b .t { font-size: 16px; font-weight: 500; margin-top: 6px; }
+  .saas .three .b .d { font-size: 13px; color: var(--ink-2); margin-top: 6px; line-height: 1.5; }
+
+  /* CTA */
+  .cta { padding: 60px 32px; border-radius: 20px; background: linear-gradient(135deg, rgba(245,185,71,.15), rgba(94,234,212,.08)); border: 1px solid var(--line-2); text-align: center; margin-top: 32px; }
+  .cta h2 { font-size: 32px; font-weight: 500; margin: 0 0 12px; }
+  .cta p { color: var(--ink-2); max-width: 640px; margin: 0 auto 24px; }
+  .cta .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: var(--accent); color: #042; border-radius: 999px; font-weight: 500; font-size: 15px; transition: all .15s; }
+  .cta .btn:hover { background: var(--accent-2); transform: translateY(-1px); }
+  .cta .btn::after { content: "→"; font-family: var(--mono); }
+
+  /* Footer */
+  .foot { padding: 40px 0; border-top: 1px solid var(--line); margin-top: 80px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="crumbs"><a href="../../index.html">Илья AI</a><span>/</span><a href="../index.html">Проекты</a><span>/</span>VPN через Telegram</div>
+    <div>v2026-08-18 · концепция · B2C SaaS</div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="tag">B2C SaaS · Telegram-first · MVP 7-10 дней</div>
+    <figure class="hub-hero-figure" style="margin: 0 0 48px 0; padding: 0; position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--line-2); aspect-ratio: 3/4; background: #0a0806;">
+  <img src="assets/photos/hub-vpn.jpg" alt="vpn — премиум hero" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.85) contrast(1.05);" loading="eager" decoding="async">
+  <figcaption style="position: absolute; left: 24px; bottom: 18px; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); letter-spacing: .12em; text-transform: uppercase; background: rgba(10,8,6,0.7); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2);">// VPN</figcaption>
+</figure>
+
+<h1 class="h-page">VPN через <em>Telegram-бота</em></h1>
+    <p class="h-sub">Концепция B2C SaaS-сервиса для РФ-рынка 2026. Бот заменяет сайт, личный кабинет и поддержку — всё в одном Telegram-интерфейсе. Протокол VLESS+Reality, устойчивый к блокировкам Роскомнадзора.</p>
+    <div class="stats">
+      <div class="s"><div class="v">199–2499 P</div><div class="l">тарифы</div></div>
+      <div class="s"><div class="v">~60%</div><div class="l">маржа</div></div>
+      <div class="s"><div class="v">1000+</div><div class="l">юзеров цель фаза 3</div></div>
+      <div class="s"><div class="v">7.5</div><div class="l">LTV/CAC</div></div>
+      <div class="s"><div class="v">99.2%</div><div class="l">uptime</div></div>
+    </div>
+  </section>
+
+  <!-- ПРОБЛЕМА → РЕШЕНИЕ -->
+  <section>
+    <div class="h-eyebrow">Проблема → Решение</div>
+    <h2 class="h">РФ заблокировал Instagram, ChatGPT, Claude. Обычные VPN <em>не работают</em>.</h2>
+    <div class="ps">
+      <div class="col bad">
+        <h3>Проблема</h3>
+        <ul>
+          <li>Роскомнадзор блокирует IP VPN за недели</li>
+          <li>WireGuard/OpenVPN видны по сигнатурам</li>
+          <li>Surfshark/ExpressVPN — заблокированы частично</li>
+          <li>Установка требует технических знаний</li>
+          <li>Оплата зарубежных сервисов — РФ-карты не проходят</li>
+        </ul>
+      </div>
+      <div class="col good">
+        <h3>Решение</h3>
+        <ul>
+          <li>VLESS+Reality маскирует под HTTPS к cloudflare.com</li>
+          <li>Telegram-бот = site + dashboard + support в одном</li>
+          <li>1 /start → 1 оплата → 1 кнопка установки</li>
+          <li>Prodamus принимает РФ-карты (4% комиссии)</li>
+          <li>Реферальная программа 20% — виральный рост</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- UX FLOW -->
+  <section>
+    <div class="h-eyebrow">UX-поток</div>
+    <h2 class="h">10 шагов клиента — от /start до <em>продления</em></h2>
+    <p class="h-sub">Полный self-service: клиент сам регистрируется, оплачивает, получает конфиг. Без участия человека.</p>
+    <div class="flow">
+      <div class="step"><div class="n">01</div><div class="t">Рефка/поиск</div><div class="d">Реф-ссылка от друга, реклама в ТГ-канале</div></div>
+      <div class="step"><div class="n">02</div><div class="t">/start</div><div class="d">Онбординг — 3 экрана, скриншоты-инструкции</div></div>
+      <div class="step"><div class="n">03</div><div class="t">Тест 24ч</div><div class="d">1 устройство, 5 ГБ трафика бесплатно</div></div>
+      <div class="step"><div class="n">04</div><div class="t">Установка</div><div class="d">1 кнопка → WireGuard/V2RayNG/Streisand</div></div>
+      <div class="step"><div class="n">05</div><div class="t">Через 24ч</div><div class="d">Напоминание + скидка 10% на оплату</div></div>
+      <div class="step"><div class="n">06</div><div class="t">Оплата</div><div class="d">Telegram Stars / Prodamus / крипта</div></div>
+      <div class="step"><div class="n">07</div><div class="t">Выдача</div><div class="d">Авто-выдача конфига + инструкция</div></div>
+      <div class="step"><div class="n">08</div><div class="t">/status</div><div class="d">Дни, трафик, устройства, история</div></div>
+      <div class="step"><div class="n">09</div><div class="t">/support</div><div class="d">Live-chat с админом, ответ 5-10 мин</div></div>
+      <div class="step"><div class="n">10</div><div class="t">/refer</div><div class="d">20% с подписки друга, 3 друга = мес бесплатно</div></div>
+    </div>
+  </section>
+
+  <!-- АРХИТЕКТУРА -->
+  <section>
+    <div class="h-eyebrow">Архитектура</div>
+    <h2 class="h">4 слоя: Edge → Bot → Billing → <em>Admin</em></h2>
+    <div class="arch">
+      <div class="layer">
+        <div class="name">Edge · протокол</div>
+        <div class="title">VLESS+Reality через Xray-core</div>
+        <div class="desc">Маскирует трафик под HTTPS к легитимному сайту. Роскомнадзор не может заблокировать, не сломав весь HTTPS. 3+ сервера в Нидерландах/Германии/Финляндии.</div>
+        <div class="stack"><span>Xray-core</span><span>Reality</span><span>Shadowsocks-2022</span><span>AmneziaWG</span></div>
+      </div>
+      <div class="layer">
+        <div class="name">Bot · интерфейс</div>
+        <div class="title">aiogram 3.x (Python, async)</div>
+        <div class="desc">Async-фреймворк, надёжный под нагрузкой. SQLite для старта (до 1000 юзеров), PostgreSQL при 1K+. Redis для кэша сессий и rate-limit. FSM для онбординга.</div>
+        <div class="stack"><span>aiogram 3.x</span><span>SQLite</span><span>PostgreSQL</span><span>Redis</span><span>FSM</span></div>
+      </div>
+      <div class="layer">
+        <div class="name">Billing · платежи</div>
+        <div class="title">Prodamus + Telegram Stars + YooKassa</div>
+        <div class="desc">Prodamus — РФ-карты, 4% комиссии, выплата на ИП/карту. YooKassa — ФЗ-54 чеки, 2.8%. Telegram Stars — встроен, но 30% Apple/Google — дорого. Крипта через Cryptomus (1.5%).</div>
+        <div class="stack"><span>Prodamus</span><span>YooKassa</span><span>Cryptomus</span><span>TG Stars</span></div>
+      </div>
+      <div class="layer">
+        <div class="name">Admin · управление</div>
+        <div class="title">Отдельный режим /admin</div>
+        <div class="desc">Список юзеров, выручка за период, бан/разбан, рассылка, экспорт в CSV. Двухфактор: пароль + проверка Telegram ID. Отдельный бот-зеркало на случай блокировки.</div>
+        <div class="stack"><span>/admin</span><span>CSV export</span><span>2FA</span><span>рассылка</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ТАРИФЫ -->
+  <section>
+    <div class="h-eyebrow">Тарифы · РФ-рынок 2026</div>
+    <h2 class="h">5 тарифов — от теста до <em>семейного</em></h2>
+    <div class="plans">
+      <div class="plan">
+        <div class="name">Тест</div>
+        <div class="price">0 <span class="cur">P</span></div>
+        <div class="term">24 часа</div>
+        <ul>
+          <li>1 устройство</li>
+          <li>5 ГБ трафика</li>
+          <li>Без оплаты</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <div class="name">Месяц</div>
+        <div class="price">199 <span class="cur">P</span></div>
+        <div class="term">30 дней</div>
+        <ul>
+          <li>3 устройства</li>
+          <li>Безлимит</li>
+          <li>Стандартная поддержка</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <div class="name">3 месяца</div>
+        <div class="price">499 <span class="cur">P</span></div>
+        <div class="term">90 дней</div>
+        <ul>
+          <li>3 устройства</li>
+          <li>Безлимит</li>
+          <li>Экономия 16%</li>
+        </ul>
+      </div>
+      <div class="plan featured">
+        <div class="name">Год · хит</div>
+        <div class="price">1499 <span class="cur">P</span></div>
+        <div class="term">365 дней</div>
+        <ul>
+          <li>5 устройств</li>
+          <li>Безлимит</li>
+          <li>Экономия 37%</li>
+          <li>Приоритет поддержки</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <div class="name">Семейный</div>
+        <div class="price">2499 <span class="cur">P</span></div>
+        <div class="term">год</div>
+        <ul>
+          <li>10 устройств</li>
+          <li>Безлимит</li>
+          <li>Премиум-поддержка</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ЮНИТ-ЭКОНОМИКА -->
+  <section>
+    <div class="h-eyebrow">Юнит-экономика · 1000 платящих юзеров</div>
+    <h2 class="h">~900 000 P чистой маржи в месяц при <em>1000 юзерах</em></h2>
+    <div class="metrics">
+      <div class="metric"><div class="v">1.5M P</div><div class="l">выручка/мес (средний чек ~1500 P)</div></div>
+      <div class="metric warn"><div class="v">15K P</div><div class="l">VPS · 3 сервера</div></div>
+      <div class="metric warn"><div class="v">60K P</div><div class="l">Prodamus 4%</div></div>
+      <div class="metric warn"><div class="v">300K P</div><div class="l">реферальная программа 20%</div></div>
+      <div class="metric warn"><div class="v">200K P</div><div class="l">реклама (CAC ~200 P)</div></div>
+      <div class="metric"><div class="v">~900K P</div><div class="l">чистая маржа (~60%)</div></div>
+    </div>
+    <p class="p" style="margin-top: 32px;">CAC ~200 P (реклама в ТГ-канале) · LTV ~1500 P (средняя подписка) · <b style="color: var(--accent);">LTV/CAC = 7.5</b> (норма SaaS >3) · Churn monthly ~8% (индустрия 5-10%) · Payback 1 месяц · Break-even при ~50 платящих юзерах.</p>
+  </section>
+
+  <!-- ТЕХНИЧЕСКИЙ СТЕК -->
+  <section>
+    <div class="h-eyebrow">Технический стек · обоснование выбора</div>
+    <h2 class="h">8 компонентов с <em>альтернативами</em></h2>
+    <div class="stack-tbl">
+      <div class="row"><div class="key">Протокол</div><div class="val"><b>VLESS+Reality</b> через Xray-core. Альтернативы: Shadowsocks-2022, WireGuard+Obfs4, AmneziaWG (запасные). НЕ OpenVPN — палится по сигнатурам.</div></div>
+      <div class="row"><div class="key">Сервер</div><div class="val"><b>Hetzner CX22</b> (Германия, 4.5 EUR/мес), Vultr, DigitalOcean. НЕ Selectel/Тимвеб — РФ-юрисдикция. 3+ сервера для отказоустойчивости.</div></div>
+      <div class="row"><div class="key">Панель VPN</div><div class="val"><b>3X-UI</b> (open-source, форк X-UI) — веб-панель управления конфигами. Альтернатива — Outline Manager (Jigsaw/Google, проще, менее гибкий).</div></div>
+      <div class="row"><div class="key">Бот-фреймворк</div><div class="val"><b>aiogram 3.x</b> — async, надёжный. Альтернативы: pyTelegramBotAPI (sync, проще, хуже под нагрузкой), grammY (TypeScript). Для MVP — aiogram.</div></div>
+      <div class="row"><div class="key">База данных</div><div class="val"><b>SQLite</b> для старта (до 1000 юзеров, 1 файл, 0 настройки). <b>PostgreSQL</b> при 1K+ юзеров. Redis для кэша и rate-limit.</div></div>
+      <div class="row"><div class="key">Биллинг</div><div class="val"><b>Prodamus</b> (РФ-карта, 4%) — основной. YooKassa (ФЗ-54, 2.8%) для легального ИП. Cryptomus (крипта, 1.5%) для приватных. TG Stars — дорого (30% Apple/Google).</div></div>
+      <div class="row"><div class="key">Деплой</div><div class="val"><b>Docker Compose</b> на VPS, nginx reverse-proxy, Let's Encrypt. GitHub Actions для CI/CD. Бэкап БД раз в сутки в S3-хранилище.</div></div>
+      <div class="row"><div class="key">Мониторинг</div><div class="val"><b>UptimeRobot</b> (бесплатный, проверка доступности бота и VPN-серверов). Grafana + Prometheus для метрик. Sentry для ошибок.</div></div>
+    </div>
+  </section>
+
+  <!-- КОНКУРЕНТЫ -->
+  <section>
+    <div class="h-eyebrow">Конкурентный анализ</div>
+    <h2 class="h">Прямые: Amnezia, BroVPN, VeePN. Косвенные: <em>ручные продажи в ТГ</em></h2>
+    <p class="h-sub">Что отличает нас: полный self-service (у конкурентов — ручная выдача), встроенная реферка 20%, семейный тариф (ниша), live-chat 5-10 мин, VLESS+Reality (у Amnezia есть, но UX слабее).</p>
+  </section>
+
+  <!-- МАРКЕТИНГ -->
+  <section>
+    <div class="h-eyebrow">Маркетинг-стратегия · 5 каналов</div>
+    <h2 class="h">От закупа в ТГ-каналах до <em>аммбассадорской программы 30%</em></h2>
+    <div class="stack-tbl">
+      <div class="row"><div class="key">1. ТГ-каналы</div><div class="val">Закуп в каналах 1K-50K подписчиков (технологии, путешествия, бизнес, крипта). 200-1000 P за пост. <b>CAC ~200-300 P</b>. Конверсия в тест ~3-5%.</div></div>
+      <div class="row"><div class="key">2. Рефка</div><div class="val">20% с подписки друга. <b>Виральный K = 0.3-0.5</b> (каждый 3-й юзер приводит 1). Бесплатный месяц при 3 друзьях. Самый дешёвый канал.</div></div>
+      <div class="row"><div class="key">3. SEO-лендинг</div><div class="val">Простой сайт с тарифами и FAQ. По запросам «vpn telegram», «vpn для chatgpt». Органический трафик через 3-6 мес.</div></div>
+      <div class="row"><div class="key">4. YouTube-обзоры</div><div class="val">Тех-блогеры делают обзоры. Бартер: бесплатный год за обзор. 1 обзор = 50-200 юзеров.</div></div>
+      <div class="row"><div class="key">5. Партнёрки</div><div class="val">Амбассадорская программа 30% recurring. Популярные ТГ-каналы могут приносить 50-200 юзеров/мес каждый.</div></div>
+    </div>
+  </section>
+
+  <!-- РИСКИ -->
+  <section>
+    <div class="h-eyebrow">Риски · митигация</div>
+    <h2 class="h">6 рисков — у каждого есть <em>план Б</em></h2>
+    <div class="risks">
+      <div class="risk">
+        <div class="name">Роскомнадзор</div>
+        <div class="desc">VPN без лицензии — серая зона (149-ФЗ ст. 10.1). <b>Митигация:</b> сервер за рубежом, юрлицо не РФ, маркетинг через личные ТГ-каналы. Крупных преследуют, мелких — нет.</div>
+      </div>
+      <div class="risk">
+        <div class="name">Блокировки IP</div>
+        <div class="desc">РКН блокирует IP VPN-серверов. <b>Митигация:</b> VLESS+Reality маскирует под HTTPS, 3+ сервера, авто-смена IP при блокировке, домен-фронт cloudflare.com.</div>
+      </div>
+      <div class="risk">
+        <div class="name">Блокировка бота</div>
+        <div class="desc">ТГ могут заблокировать бота по жалобе. <b>Митигация:</b> несколько ботов-зеркал, резервные юзернеймы, переход на личный ТГ-канал при блокировке.</div>
+      </div>
+      <div class="risk">
+        <div class="name">Отток клиентов</div>
+        <div class="desc">Churn 8%/мес — норма, но снижать. <b>Митигация:</b> реферка, скидки на продление, премиум-поддержка, новые сервера/локации как бонусы.</div>
+      </div>
+      <div class="risk">
+        <div class="name">Конкуренция</div>
+        <div class="desc">Amnezia, BroVPN, VeePN — крупные. <b>Митигация:</b> нишевые тарифы (семейный), превосходящий UX, реферка, быстрая поддержка.</div>
+      </div>
+      <div class="risk">
+        <div class="name">Оплата</div>
+        <div class="desc">РФ-карты не работают за рубежом. <b>Митигация:</b> Prodamus принимает РФ-карты, выплата на ИП. Крипта для тех, кто не хочет ИП.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section>
+    <div class="h-eyebrow">Roadmap · 4 фазы</div>
+    <h2 class="h">От MVP до <em>B2B-tier</em> за 12 месяцев</h2>
+    <div class="roadmap">
+      <div class="phase">
+        <div class="title">Фаза 1 — MVP (7-10 дней)</div>
+        <div class="desc">Бот (онбординг, /start, /status, /refer). VPS + 3X-UI. Prodamus. Тестовый запуск на 10 друзей. Цель: проверить что юзеры готовы платить.</div>
+      </div>
+      <div class="phase">
+        <div class="title">Фаза 2 — Рост (1-2 мес)</div>
+        <div class="desc">Реферальная программа. 3 сервера. PostgreSQL вместо SQLite. Админ-бот. Реклама в 5-10 ТГ-каналах. Цель: 100 платящих юзеров.</div>
+      </div>
+      <div class="phase">
+        <div class="title">Фаза 3 — Масштаб (3-6 мес)</div>
+        <div class="desc">Семейный тариф. 5+ серверов. Grafana-мониторинг. Амбассадорская программа 30%. SEO-лендинг. Цель: 1000 юзеров, 1.5M P/мес.</div>
+      </div>
+      <div class="phase">
+        <div class="title">Фаза 4 — B2B (6-12 мес)</div>
+        <div class="desc">Корпоративный tier: своя панель для админа, SLA 99.9%, выделенные IP. Юрлицо для работы с компаниями. Цель: 10 B2B-клиентов.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAAS-ОПРЕДЕЛЕНИЕ -->
+  <section>
+    <div class="h-eyebrow">Это SaaS?</div>
+    <div class="saas">
+      <div class="verdict">Да. Это B2C SaaS, Telegram-first.</div>
+      <p class="p" style="margin-top: 18px;">VPN-сервис через ТГ-бота соответствует трём признакам SaaS. При масштабировании в B2B (фаза 4) — добавляем web-панель, и это уже классический SaaS для бизнеса.</p>
+      <div class="three">
+        <div class="b">
+          <div class="n">01 · ПОДПИСКА</div>
+          <div class="t">Recurring revenue</div>
+          <div class="d">1/3/6/12 мес, не разовая продажа. Это S в SaaS.</div>
+        </div>
+        <div class="b">
+          <div class="n">02 · SELF-SERVICE</div>
+          <div class="t">Клиент сам всё делает</div>
+          <div class="d">Регистрация, оплата, конфиг, продление. Без участия человека.</div>
+        </div>
+        <div class="b">
+          <div class="n">03 · MULTI-TENANT</div>
+          <div class="t">Один код — тысячи клиентов</div>
+          <div class="d">Общие сервера, общий бот. Multi-tenancy в инфраструктуре.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section>
+    <div class="cta">
+      <h2>Хочешь такой сервис для своей ниши?</h2>
+      <p>Эта концепция — рабочий кейс для портфолио. Реальный MVP — 7-10 дней разработки + VPS за рубежом + Prodamus-регистрация. Старт по явному «делаем MVP» от Ильи.</p>
+      <a class="btn" href="../../index.html">Обсудить проект</a>
+    </div>
+  </section>
+
+  <div class="foot">
+    <div>Концепция: Лекс (агент) · 18.08.2026 · доработано из базовой версии</div>
+  </div>
+
+</div>
+</body>
+</html>

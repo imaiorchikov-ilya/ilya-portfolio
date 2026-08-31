@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Проекты — Илья AI-консультант</title>
+<meta name="description" content="Все проекты Ильи: VPN, чат-боты, сайты, контент-фабрика, автоматизация, ElevenMusic." />
+<meta name="theme-color" content="#050608" />
+<meta name="color-scheme" content="dark" />
+<style>
+  :root { --bg:#050608; --ink:#f5f6f8; --ink-2:#a8b0bd; --accent:#5eead4; --line:rgba(255,255,255,.08); }
+  *,*::before,*::after { box-sizing:border-box; }
+  html { background:var(--bg); }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; line-height:1.5; padding:40px 24px; max-width:920px; margin:0 auto; }
+  h1 { font-size:36px; margin:0 0 12px; letter-spacing:-0.02em; }
+  .lede { color:var(--ink-2); font-size:18px; margin-bottom:32px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; margin-top:24px; }
+  a.card { display:block; padding:20px; border:1px solid var(--line); border-radius:12px; color:var(--ink); text-decoration:none; transition:border-color .2s; }
+  a.card:hover { border-color:var(--accent); }
+  a.card .label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:0.08em; }
+  a.card h3 { margin:6px 0 8px; font-size:18px; }
+  a.card p { margin:0; color:var(--ink-2); font-size:14px; }
+  .back { display:inline-block; margin-bottom:24px; color:var(--accent); text-decoration:none; font-size:14px; }
+</style>
+</head>
+<body>
+  <a class="back" href="../index.html">← Назад в портфолио</a>
+  <h1>Все проекты</h1>
+  <p class="lede">Шесть направлений: от AI-контента до VPN-инфраструктуры. Каждое можно запустить как пилот за 14 дней.</p>
+
+  <div class="grid">
+    <a class="card" href="vpn/index.html">
+      <div class="label">B2C SaaS</div>
+      <h3>VPN через Telegram</h3>
+      <p>VLESS+Reality на Hetzner/3X-UI. Концепция.</p>
+    </a>
+    <a class="card" href="chatbot/index.html">
+      <div class="label">AI-агенты</div>
+      <h3>AI-бот для бизнеса</h3>
+      <p>D2C-ассистент в 3 каналах: Instagram + Telegram + VK.</p>
+    </a>
+    <a class="card" href="content/index.html">
+      <div class="label">Контент-фабрика</div>
+      <h3>AI-контент и видео</h3>
+      <p>Reels, Shorts, TikTok на YandexGPT + Kandinsky.</p>
+    </a>
+    <a class="card" href="website/index.html">
+      <div class="label">Веб-разработка</div>
+      <h3>Сайты под ключ</h3>
+      <p>Лендинги и портфолио на HTML + Tailwind.</p>
+    </a>
+    <a class="card" href="automation/index.html">
+      <div class="label">Автоматизация</div>
+      <h3>n8n + AI-агенты</h3>
+      <p>Лид-скоринг, отчётность, CRM-боты без кода.</p>
+    </a>
+    <a class="card" href="elevenmusic/index.html">
+      <div class="label">Музыка</div>
+      <h3>ElevenMusic Reels</h3>
+      <p>AI-музыка для Reels через ElevenLabs. Пилот.</p>
+    </a>
+  </div>
+</body>
+</html>
