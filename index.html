@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Илья AI — портфолио</title>
-<meta name="description" content="Шесть AI-проектов: VPN через Telegram, AI-агенты, контент-фабрика, сайты, автоматизация, AI-музыка. Плюс сайт салона красоты NOVA." />
+<meta name="description" content="Семь AI-проектов: AI-агенты, автоматизация бухгалтерии, RAG-базы знаний, контент-фабрика, VPN, сайты, AI-музыка. Мультиагентные конвейеры на CrewAI/LangGraph. Открытый код на GitHub." />
 <meta name="theme-color" content="#050608" />
 <meta name="color-scheme" content="dark" />
 <style>
@@ -24,14 +24,13 @@
   a.card h3 { margin:8px 0 6px; font-size:18px; font-weight:500; }
   a.card p { margin:0; color:var(--ink-2); font-size:14px; line-height:1.5; }
   a.card.featured { border-color:var(--accent); background:linear-gradient(135deg,rgba(94,234,212,.05),transparent); }
-  .legacy { color:var(--ink-3); font-size:12px; font-family:ui-monospace,monospace; }
   footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--line); color:var(--ink-3); font-size:12px; font-family:ui-monospace,monospace; }
 </style>
 </head>
 <body>
   <div class="eyebrow">// ilya.ai portfolio · 2026</div>
-  <h1>Шесть проектов. <em>Один стек.</em></h1>
-  <p class="lede">AI-агенты, контент-фабрика, VPN-инфраструктура, автоматизация no-code, лендинги, AI-музыка. Каждый проект — рабочий кейс с архитектурой, метриками и юнит-экономикой.</p>
+  <h1>Семь проектов. <em>Один стек.</em></h1>
+  <p class="lede">Мультиагентные конвейеры на CrewAI/LangGraph, автоматизация бухгалтерии (акт М-11: день → 20 минут), RAG-базы знаний с evals, контент-фабрика, VPN, лендинги, AI-музыка. Формула 99/1: 99% рутину делают агенты, 1% — человек, который за них отвечает.</p>
 
   <h2>// проекты</h2>
   <div class="grid">
@@ -46,9 +45,19 @@
       <p>D2C-ассистент в 3 каналах: Instagram + Telegram + VK. Квалификация лидов, CRM, сценарии.</p>
     </a>
     <a class="card" href="projects/automation/index.html">
-      <div class="label">No-code · n8n + AI</div>
-      <h3>Автоматизация процессов</h3>
-      <p>14 рабочих пайплайнов: лид-скоринг, контент-завод, AI-продавец, автоотчёты. ROI от 30 000 ₽/мес.</p>
+      <div class="label">Бой-кейс · бухгалтерия</div>
+      <h3>Акт-конвейер М-11</h3>
+      <p>ОСВ + ведомость → готовый акт списания в Excel. День работы → 20 минут. Telegram + 1С.</p>
+    </a>
+    <a class="card" href="https://github.com/imaiorchikov-ilya/ilya-portfolio" target="_blank" rel="noopener">
+      <div class="label">Open-код · GitHub</div>
+      <h3>Мультиагентные конвейеры</h3>
+      <p>CrewAI + LangGraph: сабагенты, ревизор, трассировка. Автомат досье по URL — точность 5/6 против эталона.</p>
+    </a>
+    <a class="card" href="https://github.com/imaiorchikov-ilya/ilya-portfolio" target="_blank" rel="noopener">
+      <div class="label">Знания · RAG + evals</div>
+      <h3>«Вектор колибри»</h3>
+      <p>Умная база знаний без галлюцинаций: BM25 + локальная LLM, ответы с цитатами, 14/14 evals.</p>
     </a>
     <a class="card" href="projects/content/index.html">
       <div class="label">Контент-фабрика · 30/день</div>
@@ -74,15 +83,15 @@
       <h3>NOVA · салон красоты</h3>
       <p>Лендинг салона красоты. Адаптив 360/768/1440, Schema.org, Open Graph. 17 секций, 12 КБ.</p>
     </a>
-    <a class="card" href="ilya-vizitka/">
-      <div class="label">legacy · ilya.ai</div>
+    <a class="card featured" href="ilya-vizitka/">
+      <div class="label">полная версия · ilya.ai</div>
       <h3>Сайт-визитка</h3>
-      <p>Старая версия визитки с 6 проектами. <span class="legacy">// оставлен как legacy, новый путь — /projects/</span></p>
+      <p>Главный сайт: услуга «Внедрение AI-агентов», живые кейсы, форматы работы, FAQ. Текущая версия.</p>
     </a>
   </div>
 
   <footer>
-    <span>ilya.ai · 2026</span> · <a href="projects/" style="color:var(--accent);text-decoration:none">все проекты →</a> · <a href="nova/" style="color:var(--accent);text-decoration:none">nova</a>
+    <span>ilya.ai · 2026</span> · <a href="https://github.com/imaiorchikov-ilya/ilya-portfolio" style="color:var(--accent);text-decoration:none">github: открытый код →</a> · <a href="projects/" style="color:var(--accent);text-decoration:none">все проекты</a> · <a href="nova/" style="color:var(--accent);text-decoration:none">nova</a>
   </footer>
 </body>
 </html>
