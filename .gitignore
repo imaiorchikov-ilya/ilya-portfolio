@@ -1,0 +1,23 @@
+# Секреты и окружения
+.env
+.env.*
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Рабочие артефакты
+out/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Данные и сессии (в публичное репо не подлежит)
+*.xlsx
+*.xls
+*.pdf
+.hh_state*

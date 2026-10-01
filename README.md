@@ -53,5 +53,5 @@
 ## Контакты
 
 - Telegram/телефон: +7 905 940-65-50
-- open_788@mail.ru
+- imaiorchikov@gmail.com
 - [hh-резюме](https://omsk.hh.ru/resume/62ea9ccaff03b5e6570039ed1f4372706f3254)
