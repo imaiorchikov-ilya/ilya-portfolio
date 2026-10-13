@@ -161,7 +161,15 @@
   .footer { padding: 40px 0; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-align: center; margin-top: 80px; }
 </style>
 </head>
-<body>
+<body><a class="logo-badge" href="../../index.html" aria-label="Илья AI — на главную"><img src="../../assets/favicon-64.png" alt="Логотип — колибри"></a>
+<style>
+.logo-badge{position:fixed;top:16px;left:16px;z-index:9999;display:block;line-height:0;border-radius:12px;padding:5px;background:rgba(8,10,15,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(94,234,212,.35);animation:badgeGlow 4.5s ease-in-out infinite;}
+.logo-badge img{width:40px;height:40px;border-radius:8px;display:block;}
+.logo-badge:hover{border-color:rgba(94,234,212,.75);}
+@keyframes badgeGlow{0%,100%{box-shadow:0 0 14px rgba(94,234,212,.18),0 0 34px rgba(94,234,212,.08)}50%{box-shadow:0 0 26px rgba(94,234,212,.38),0 0 60px rgba(94,234,212,.16)}}
+</style>
+<style>.wrap{padding-top:84px}</style>
+
 
 <div class="wrap">
   <div class="topbar">
