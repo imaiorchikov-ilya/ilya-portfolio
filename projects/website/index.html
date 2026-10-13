@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Проект: Сайт под ключ — премиум-лендинг · Илья AI</title>
+<meta name="description" content="Образец премиум-лендинга. Дизайн, фронтенд, бэкенд, деплой — 7–21 день." />
+<meta name="theme-color" content="#0a0806" />
+<style>
+  :root {
+    --bg: #0a0806; --ink: #f5f1ea; --ink-2: #b8a994; --ink-3: #6a5d50;
+    --accent: #d4a574; --accent-2: #b8895a; --line: rgba(245,241,234,.08); --line-2: rgba(245,241,234,.14);
+    --warm: #e8c896;
+    --mono: ui-monospace, "JetBrains Mono", monospace;
+    --serif: "Cormorant Garamond", "Playfair Display", "Times New Roman", serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Inter", -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 2; }
+  a { color: inherit; text-decoration: none; }
+
+  /* Top bar */
+  .topbar { padding: 18px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .topbar a { color: var(--ink-2); }
+  .topbar .crumbs span { margin: 0 8px; color: var(--ink-3); }
+  .topbar .crumbs a:hover { color: var(--accent); }
+
+  /* Hero */
+  .demo-hero { min-height: 90vh; display: grid; place-items: center; padding: 80px 0 60px; text-align: center; position: relative; overflow: hidden; }
+  .demo-hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 80% at 50% 30%, rgba(212,165,116,.12), transparent 70%); pointer-events: none; }
+  .demo-hero .pretitle { font-family: var(--mono); font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: .2em; margin-bottom: 24px; }
+  .demo-hero h1 { font-family: var(--serif); font-size: clamp(56px, 10vw, 140px); line-height: .95; font-weight: 400; letter-spacing: -.02em; margin: 0 0 24px; }
+  .demo-hero h1 em { font-style: italic; color: var(--accent); }
+  .demo-hero p { font-size: 18px; color: var(--ink-2); max-width: 580px; margin: 0 auto 36px; line-height: 1.6; }
+  .demo-hero .ctas { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: all .2s; border: 1px solid transparent; cursor: pointer; }
+  .btn.primary { background: var(--accent); color: #0a0806; }
+  .btn.primary:hover { background: var(--accent-2); }
+  .btn.ghost { background: transparent; border-color: var(--line-2); color: var(--ink); }
+  .btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: .15em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .scroll-hint::after { content: ""; width: 1px; height: 32px; background: linear-gradient(180deg, var(--ink-3), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+  @keyframes scrollPulse { 0%, 100% { opacity: 1; transform: scaleY(1); } 50% { opacity: .4; transform: scaleY(.6); } }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s cubic-bezier(.4, 0, .2, 1), transform .8s cubic-bezier(.4, 0, .2, 1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal[data-delay="1"] { transition-delay: .1s; }
+  .reveal[data-delay="2"] { transition-delay: .2s; }
+  .reveal[data-delay="3"] { transition-delay: .3s; }
+  .reveal[data-delay="4"] { transition-delay: .4s; }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  .price-blink { animation: shimmer 3s ease-in-out infinite; background: linear-gradient(90deg, var(--warm), var(--accent), var(--warm)); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* Section base */
+  section { padding: 100px 0; border-top: 1px solid var(--line); }
+  .h-eyebrow { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .15em; }
+  h2.h { font-family: var(--serif); font-size: clamp(36px, 5vw, 64px); line-height: 1.05; font-weight: 400; letter-spacing: -.015em; margin: 16px 0 16px; max-width: 800px; }
+  h2.h em { font-style: italic; color: var(--accent); }
+  .h-sub { color: var(--ink-2); max-width: 600px; font-size: 16px; margin: 0 0 48px; }
+
+  /* Showcase */
+  .showcase { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; }
+  .showcase-main { background: url('../../assets/photos/coffee-main.jpg') center/cover, linear-gradient(135deg, #2a1a10, #0a0806); border: 1px solid var(--line-2); border-radius: 18px; padding: 0; aspect-ratio: 4/3; position: relative; overflow: hidden; }
+  .showcase-main::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 70% 30%, rgba(212,165,116,.3), transparent 60%), linear-gradient(180deg, transparent 50%, rgba(0,0,0,.6)); }
+  .showcase-main .price { position: absolute; top: 24px; right: 24px; font-family: var(--mono); font-size: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.5); backdrop-filter: blur(8px); border: 1px solid var(--line-2); z-index: 2; color: var(--warm); }
+  .showcase-main .cup { display: none; }
+  .showcase-side { display: flex; flex-direction: column; gap: 16px; }
+  .showcase-side .tile { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 20px; flex: 1; display: flex; flex-direction: column; transition: all .25s; }
+  .showcase-side .tile:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .showcase-side .tile .label { font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .12em; }
+  .showcase-side .tile h3 { font-family: var(--serif); font-size: 24px; margin: 8px 0 6px; font-weight: 400; }
+  .showcase-side .tile p { color: var(--ink-2); font-size: 14px; margin: 0; }
+  @media (max-width: 800px) { .showcase { grid-template-columns: 1fr; } }
+
+  /* Menu */
+  .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .menu-card { position: relative; }
+  .menu-card .img { aspect-ratio: 1; border-radius: 14px; overflow: hidden; margin-bottom: 16px; position: relative; background-size: cover; background-position: center; transition: transform .4s; }
+  .menu-card:hover .img { transform: scale(1.05); }
+  .menu-card .img-1 { background-image: url('../../assets/photos/coffee-1.jpg'), radial-gradient(circle at 50% 60%, #c89b6b, #3a1a08 80%); }
+  .menu-card .img-2 { background-image: url('../../assets/photos/coffee-2.jpg'), radial-gradient(circle at 50% 30%, #f5e0c0, #6a4a20 80%); }
+  .menu-card .img-3 { background-image: url('../../assets/photos/coffee-3.jpg'), radial-gradient(circle at 50% 50%, #8a5a30, #1a0a04 80%); }
+  .menu-card .img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,.4)); }
+  .menu-card h3 { font-family: var(--serif); font-size: 22px; margin: 0 0 4px; font-weight: 500; }
+  .menu-card .meta { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--ink-3); padding-top: 8px; border-top: 1px solid var(--line); margin-top: 8px; }
+  .menu-card .meta .price { color: var(--accent); }
+  @media (max-width: 800px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
+
+  /* Stack sidebar */
+  .demo-wrap { display: grid; grid-template-columns: 320px 1fr; gap: 32px; }
+  .demo-sidebar { background: var(--bg); border: 1px solid var(--line); border-radius: 16px; padding: 24px; height: fit-content; position: sticky; top: 32px; }
+  .demo-sidebar h4 { font-family: var(--mono); font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: .12em; margin: 0 0 16px; }
+  .demo-sidebar .stat { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .demo-sidebar .stat:last-child { border-bottom: none; }
+  .demo-sidebar .stat .l { font-size: 13px; color: var(--ink-2); }
+  .demo-sidebar .stat .v { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+  .demo-sidebar .stack-list { list-style: none; padding: 0; margin: 16px 0 0; }
+  .demo-sidebar .stack-list li { display: flex; gap: 10px; padding: 6px 0; font-size: 13px; color: var(--ink-2); }
+  .demo-sidebar .stack-list li::before { content: "·"; color: var(--accent); font-weight: bold; }
+
+  .demo-content { }
+  .demo-content .row { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 12px; display: grid; grid-template-columns: 200px 1fr auto; gap: 16px; align-items: center; }
+  .demo-content .row .ix { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .demo-content .row h4 { margin: 4px 0 0; font-size: 16px; font-weight: 500; }
+  .demo-content .row p { margin: 0; color: var(--ink-2); font-size: 14px; }
+  .demo-content .row .check { font-family: var(--mono); font-size: 12px; color: var(--accent); padding: 4px 10px; border: 1px solid var(--accent); border-radius: 999px; }
+  @media (max-width: 900px) {
+    .demo-wrap { grid-template-columns: 1fr; }
+    .demo-sidebar { position: static; }
+    .demo-content .row { grid-template-columns: 1fr; }
+  }
+
+  /* Footer note */
+  .note { background: linear-gradient(180deg, transparent, rgba(212,165,116,.06)); border-top: 1px solid var(--line-2); padding: 60px 0; text-align: center; }
+  .note p { font-family: var(--serif); font-size: 24px; font-style: italic; color: var(--ink-2); max-width: 600px; margin: 0 auto 24px; line-height: 1.4; }
+  .note .ctas { display: inline-flex; gap: 12px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="crumbs">
+      <a href="../../index.html">Портфолио</a>
+      <span>›</span>
+      <span>Проект: Сайт под ключ</span>
+    </div>
+    <div>// case study · 7 дней · 1 дизайнер · 1 разработчик</div>
+  </div>
+</div>
+
+<section class="demo-hero" style="border-top:none;">
+  <div class="wrap">
+    <div class="pretitle">// case study 01</div>
+    <figure class="hub-hero-figure" style="margin: 0 0 48px 0; padding: 0; position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--line-2); aspect-ratio: 3/4; background: #0a0806;">
+  <img src="../../assets/photos/hub-website.jpg?v=3" alt="website — премиум hero" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.85) contrast(1.05);" loading="eager" decoding="async">
+  <figcaption style="position: absolute; left: 24px; bottom: 18px; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); letter-spacing: .12em; text-transform: uppercase; background: rgba(10,8,6,0.7); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2);">// WEBSITE</figcaption>
+</figure>
+
+<h1>Кофейня <em>«Чёрный»</em></h1>
+    <p>Премиум-лендинг для specialty-кофейни. Бронирование столика, меню с фильтрами, интеграция с iiko, AEO-оптимизация под ChatGPT.</p>
+    <div class="ctas">
+      <a class="btn primary" href="#showcase">Смотреть работу →</a>
+      <a class="btn ghost" href="../../index.html">← Назад в портфолио</a>
+    </div>
+  </div>
+  <div class="scroll-hint">scroll</div>
+</section>
+
+<section id="showcase" class="reveal">
+  <div class="wrap">
+    <div class="h-eyebrow">// визуал</div>
+    <h2 class="h">Главный экран: <em>крупно, дорого, без шума.</em></h2>
+    <p class="h-sub">Один объект — чашка кофе. Один акцент — тёплый янтарь. Серифные заголовки. Параллакс на фото при скролле.</p>
+    <div class="showcase">
+      <div class="showcase-main">
+        <div class="price price-blink">€4.80</div>
+      </div>
+      <div class="showcase-side">
+        <div class="tile">
+          <div class="label">/ бронирование</div>
+          <h3>Dikidi embed</h3>
+          <p>Онлайн-запись столика за 30 секунд, без звонка администратору. Конверсия 18%.</p>
+        </div>
+        <div class="tile">
+          <div class="label">/ iiko sync</div>
+          <h3>Меню в реальном времени</h3>
+          <p>Позиции подтягиваются из iiko автоматически. Скрытое — не показывается. Цены обновляются без перезаливки.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="h-eyebrow">// меню</div>
+    <h2 class="h">Сетка с <em>мягкими</em> фильтрами.</h2>
+    <p class="h-sub">По типу (эспрессо / фильтр / спец), по вкусу (кислотность, плотность, орех/ягоды), по наличию альтернативного молока.</p>
+    <div class="menu-grid">
+      <article class="menu-card reveal" data-delay="1">
+        <div class="img img-1"></div>
+        <h3>Эфиопия Иргачеффе</h3>
+        <div class="meta"><span>фильтр · 250 мл</span><span class="price">420 ₽</span></div>
+      </article>
+      <article class="menu-card reveal" data-delay="2">
+        <div class="img img-2"></div>
+        <h3>Колумбия Уила</h3>
+        <div class="meta"><span>эспрессо · 30 мл</span><span class="price">280 ₽</span></div>
+      </article>
+      <article class="menu-card reveal" data-delay="3">
+        <div class="img img-3"></div>
+        <h3>Гватемала Антигуа</h3>
+        <div class="meta"><span>американо · 200 мл</span><span class="price">320 ₽</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="h-eyebrow">// что внутри</div>
+    <h2 class="h">Стек и <em>сроки.</em></h2>
+    <p class="h-sub">Сборка «под ключ» занимает 7–10 рабочих дней для премиум-лендинга, 14–21 день для корпоративного сайта с каталогом.</p>
+    <div class="demo-wrap">
+      <aside class="demo-sidebar">
+        <h4>// в цифрах</h4>
+        <div class="stat"><span class="l">Lighthouse</span><span class="v">98/100</span></div>
+        <div class="stat"><span class="l">Mobile score</span><span class="v">96/100</span></div>
+        <div class="stat"><span class="l">Bundle size</span><span class="v">38 KB</span></div>
+        <div class="stat"><span class="l">LCP</span><span class="v">0.8s</span></div>
+        <div class="stat"><span class="l">SEO</span><span class="v">A+</span></div>
+        <div class="stat"><span class="l">AEO (ChatGPT)</span><span class="v">цитируется</span></div>
+        <ul class="stack-list">
+          <li>HTML / CSS / vanilla JS</li>
+          <li>Static-first, no-CMS</li>
+          <li>Netlify / Cloudflare Pages</li>
+          <li>Schema.org · JSON-LD</li>
+          <li>Open Graph · Twitter Cards</li>
+          <li>iiko / r_keeper API</li>
+          <li>Dikidi / YCLIENTS embed</li>
+          <li>Яндекс.Метрика · GA4</li>
+        </ul>
+      </aside>
+      <div class="demo-content">
+        <div class="row">
+          <div><div class="ix">/ 01</div><h4>Дизайн-концепция</h4></div>
+          <p>2 варианта на выбор: «минимал-сериф» (как этот) и «техно-моно» (Vercel-style). Итерации — 3 раунда включено.</p>
+          <span class="check">2 дня</span>
+        </div>
+        <div class="row">
+          <div><div class="ix">/ 02</div><h4>Адаптивная вёрстка</h4></div>
+          <p>Mobile-first. Проверка на 6 разрешениях: 320, 375, 414, 768, 1024, 1440. Все hover-эффекты заменяются на tap-аналоги.</p>
+          <span class="check">3 дня</span>
+        </div>
+        <div class="row">
+          <div><div class="ix">/ 03</div><h4>Интеграции</h4></div>
+          <p>iiko / r_keeper для меню и наличия, Dikidi/YCLIENTS для брони, Я.Метрика + GA4 + цели в обоих, CRM-форма в Telegram.</p>
+          <span class="check">2 дня</span>
+        </div>
+        <div class="row">
+          <div><div class="ix">/ 04</div><h4>SEO + AEO</h4></div>
+          <p>Schema.org (Restaurant, Menu, Reservation), FAQ-разметка, Open Graph, sitemap.xml, robots.txt, page-speed optimization.</p>
+          <span class="check">1 день</span>
+        </div>
+        <div class="row">
+          <div><div class="ix">/ 05</div><h4>Деплой + передача</h4></div>
+          <p>Netlify / Cloudflare Pages / VPS Selectel. SSL, бэкапы, мониторинг. Видео-инструкция на 15 минут по редактированию.</p>
+          <span class="check">1 день</span>
+        </div>
+        <div class="row">
+          <div><div class="ix">/ 06</div><h4>Поддержка</h4></div>
+          <p>30 дней багфиксов бесплатно. Дальше — пакет поддержки от 8 000 ₽/мес или почасовая ставка.</p>
+          <span class="check">∞</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="note">
+  <div class="wrap">
+    <p>«Хотите такой же уровень для своего бизнеса? Обсудим на бесплатном аудите.»</p>
+    <div class="ctas">
+      <a class="btn primary" href="../../index.html#contact">Записаться на аудит →</a>
+      <a class="btn ghost" href="./chatbot/index.html">Следующий проект: AI-бот →</a>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>
+  (function() {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0, rootMargin: '0px 0px -50px 0px' });
+    els.forEach(el => io.observe(el));
+    // safety net: anything still hidden after 1.5s gets revealed
+    setTimeout(() => {
+      els.forEach(el => { if (!el.classList.contains('in')) el.classList.add('in'); });
+    }, 1500);
+  })();
+</script>
+</html>

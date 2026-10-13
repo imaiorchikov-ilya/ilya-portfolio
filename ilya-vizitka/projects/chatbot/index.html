@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Проект: AI-чат-бот — живое демо · Илья AI</title>
+<meta name="description" content="Интерактивный демо AI-агента. Квалификация лидов, поддержка, интеграции с CRM." />
+<meta name="theme-color" content="#0a0c10" />
+<style>
+  :root {
+    --bg: #0a0c10; --bg-2: #13171f; --bg-3: #1a1f2b;
+    --line: rgba(255,255,255,.06); --line-2: rgba(255,255,255,.12);
+    --ink: #f5f6f8; --ink-2: #a8b0bd; --ink-3: #5a6473;
+    --accent: #5eead4; --accent-2: #2dd4bf;
+    --violet: #a78bfa; --warm: #f5b947;
+    --mono: ui-monospace, "JetBrains Mono", monospace;
+    --sans: "Inter", -apple-system, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 2; }
+  .topbar { padding: 18px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .topbar a { color: var(--ink-2); }
+  .topbar a:hover { color: var(--accent); }
+  .topbar .crumbs span { margin: 0 8px; color: var(--ink-3); }
+
+  section { padding: 80px 0; }
+  .h-eyebrow { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .15em; }
+  h1.h-page { font-size: clamp(40px, 6vw, 80px); line-height: 1.02; font-weight: 500; letter-spacing: -.025em; margin: 14px 0 18px; }
+  h1.h-page em { font-style: italic; font-family: "Instrument Serif", "Times New Roman", serif; color: var(--accent); font-weight: 400; }
+  h2.h { font-size: clamp(32px, 4.4vw, 56px); line-height: 1.05; font-weight: 500; letter-spacing: -.02em; margin: 16px 0 16px; max-width: 800px; }
+  h2.h em { font-style: italic; font-family: "Instrument Serif", "Times New Roman", serif; color: var(--accent); font-weight: 400; }
+  .h-sub { color: var(--ink-2); max-width: 640px; font-size: 16px; margin: 0 0 48px; }
+  .p { color: var(--ink-2); font-size: 16px; line-height: 1.65; }
+
+  /* Layout */
+  .demo { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: start; }
+  .demo-info { padding-top: 8px; }
+  .demo-info .features { list-style: none; padding: 0; margin: 24px 0 0; }
+  .demo-info .features li { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .demo-info .features li::before { content: "→"; color: var(--accent); font-family: var(--mono); }
+  .demo-info .features li b { color: var(--ink); font-weight: 500; }
+
+  /* Chat widget — premium */
+  .chat-wrap {
+    background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 20px;
+    box-shadow: 0 40px 80px rgba(0,0,0,.5); overflow: hidden; position: sticky; top: 32px;
+    display: flex; flex-direction: column; height: 720px;
+  }
+  .chat-head { padding: 18px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,.02); }
+  .chat-head .av { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #2563eb); display: grid; place-items: center; color: #042; font-weight: 700; font-family: var(--mono); font-size: 16px; box-shadow: 0 0 18px rgba(94,234,212,.35); }
+  .chat-head .info { flex: 1; }
+  .chat-head .info .name { font-size: 15px; font-weight: 500; }
+  .chat-head .info .status { font-size: 12px; color: var(--green); font-family: var(--mono); display: flex; align-items: center; gap: 6px; }
+  .chat-head .info .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .chat-head .reset { background: transparent; border: 1px solid var(--line-2); color: var(--ink-2); padding: 6px 12px; border-radius: 8px; font-family: var(--mono); font-size: 11px; cursor: pointer; transition: all .15s; }
+  .chat-head .reset:hover { border-color: var(--accent); color: var(--accent); }
+
+  .chat-body { flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .chat-body::-webkit-scrollbar { width: 6px; }
+  .chat-body::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+
+  .msg { max-width: 84%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; animation: pop .3s ease; }
+  .msg.b { background: var(--bg-3); border: 1px solid var(--line); color: var(--ink); align-self: flex-start; border-bottom-left-radius: 4px; }
+  .msg.u { background: var(--accent); color: #042; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 500; }
+  .msg .meta { display: block; font-size: 10px; color: var(--ink-3); font-family: var(--mono); margin-top: 4px; }
+  .msg.u .meta { color: rgba(4,36,31,.6); }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .typing { align-self: flex-start; padding: 12px 16px; background: var(--bg-3); border-radius: 16px; border-bottom-left-radius: 4px; display: inline-flex; gap: 4px; }
+  .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); animation: blink 1.2s infinite; }
+  .typing i:nth-child(2) { animation-delay: .2s; }
+  .typing i:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,80%,100% { opacity: .3 } 40% { opacity: 1 } }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 20px 8px; }
+  .chip { background: transparent; border: 1px solid var(--line-2); color: var(--ink); padding: 8px 14px; border-radius: 999px; font-size: 13px; cursor: pointer; transition: all .15s; font-family: var(--sans); }
+  .chip:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+
+  .chat-input { padding: 12px 16px 16px; border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,.2); }
+  .chat-input input { flex: 1; background: var(--bg-3); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: var(--ink); font: inherit; font-size: 14px; outline: none; transition: border-color .15s; }
+  .chat-input input:focus { border-color: var(--accent); }
+  .chat-input input::placeholder { color: var(--ink-3); }
+  .chat-input button { background: var(--accent); color: #042; border: none; padding: 12px 18px; border-radius: 10px; font-weight: 500; cursor: pointer; font-size: 14px; transition: all .15s; }
+  .chat-input button:hover { background: var(--accent-2); }
+  .chat-input button:disabled { background: var(--bg-3); color: var(--ink-3); cursor: not-allowed; }
+
+  /* CRM card after qualification */
+  .crm-card { background: var(--bg-2); border: 1px solid var(--accent); border-radius: 14px; padding: 16px; align-self: stretch; max-width: 100%; animation: pop .4s ease; }
+  .crm-card .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .crm-card .head .ix { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .12em; }
+  .crm-card .head .ok { font-family: var(--mono); font-size: 11px; color: var(--green); }
+  .crm-card .field { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+  .crm-card .field .k { color: var(--ink-3); }
+  .crm-card .field .v { color: var(--ink); font-weight: 500; }
+
+  /* Below: integrations */
+  .int-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .int { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 16px; text-align: center; transition: all .15s; }
+  .int:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .int .ic { font-size: 20px; margin-bottom: 6px; color: var(--accent); }
+  .int .nm { font-size: 12px; color: var(--ink-2); font-family: var(--mono); }
+  @media (max-width: 900px) { .int-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 540px) { .int-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 32px 0; }
+  .stat { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+  .stat .v { font-family: var(--mono); font-size: 32px; color: var(--accent); letter-spacing: -.02em; }
+  .stat .l { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+  @media (max-width: 700px) { .stats { grid-template-columns: 1fr 1fr; } }
+
+  @media (max-width: 900px) { .demo { grid-template-columns: 1fr; } .chat-wrap { position: static; height: 640px; } }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: all .2s; border: 1px solid transparent; cursor: pointer; }
+  .btn.primary { background: var(--accent); color: #042; }
+  .btn.primary:hover { background: var(--accent-2); }
+  .btn.ghost { background: transparent; border-color: var(--line-2); color: var(--ink); }
+  .btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Reveal + animations */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s cubic-bezier(.4, 0, .2, 1), transform .8s cubic-bezier(.4, 0, .2, 1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal[data-delay="1"] { transition-delay: .1s; }
+  .reveal[data-delay="2"] { transition-delay: .2s; }
+  .reveal[data-delay="3"] { transition-delay: .3s; }
+  .reveal[data-delay="4"] { transition-delay: .4s; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+  .live-dot { animation: blink 1.5s ease-in-out infinite; }
+  @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(94,234,212,.5); } 100% { box-shadow: 0 0 0 12px rgba(94,234,212,0); } }
+  .chat-avatar { animation: pulse-ring 2s infinite; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="crumbs">
+      <a href="../../index.html">Портфолио</a><span>›</span>
+      <span>Проект: AI-чат-бот</span>
+    </div>
+    <div>// live demo · нажмите «Открыть чат»</div>
+  </div>
+</div>
+
+<section class="reveal" style="padding-top: 80px;">
+  <div class="wrap">
+    <div class="h-eyebrow">// case study 02</div>
+    <figure class="hub-hero-figure" style="margin: 0 0 48px 0; padding: 0; position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--line-2); aspect-ratio: 3/4; background: #0a0806;">
+  <img src="assets/photos/hub-chatbot.jpg" alt="chatbot — премиум hero" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.85) contrast(1.05);" loading="eager" decoding="async">
+  <figcaption style="position: absolute; left: 24px; bottom: 18px; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); letter-spacing: .12em; text-transform: uppercase; background: rgba(10,8,6,0.7); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2);">// CHATBOT</figcaption>
+</figure>
+
+<h1 class="h-page">AI-агент, который <em>реально</em><br>квалифицирует лидов.</h1>
+    <p class="p" style="max-width: 640px;">Не болтушка с 5 фразами. Полноценный ассистент: задаёт уточняющие вопросы, проверяет наличие товара, передаёт в CRM, ставит задачу менеджеру. С памятью и контекстом.</p>
+  </div>
+</section>
+
+<section class="reveal" style="padding-top: 0;">
+  <div class="wrap">
+    <div class="demo">
+      <div class="demo-info">
+        <div class="h-eyebrow">// в цифрах</div>
+        <div class="stats">
+          <div class="stat"><div class="v">2ч→4м</div><div class="l">время первого ответа</div></div>
+          <div class="stat"><div class="v">+38%</div><div class="l">квалифицированных лидов</div></div>
+          <div class="stat"><div class="v">0 ₽</div><div class="l">за 1000 диалогов</div></div>
+          <div class="stat"><div class="v">24/7</div><div class="l">без выходных и праздников</div></div>
+        </div>
+
+        <h2 class="h" style="font-size: 32px;">Что <em>внутри</em>.</h2>
+        <ul class="features">
+          <li><div><b>RAG на ваших данных</b> — загружаете PDF, базу знаний, прайс, регламенты. Бот отвечает цитатами с указанием источника.</div></li>
+          <li><div><b>Память диалога</b> — помнит контекст на 50+ сообщений, возвращается к уточнениям через час, после звонка менеджера.</div></li>
+          <li><div><b>Квалификация</b> — задаёт нужные вопросы в нужном порядке, передаёт в amoCRM/Bitrix с заполненными полями.</div></li>
+          <li><div><b>Эскалация</b> — сложные/негативные кейсы мгновенно переключаются на живого оператора с полной историей.</div></li>
+          <li><div><b>Мультиканал</b> — Telegram, WhatsApp, виджет на сайте, Instagram*, VK* (* там, где доступно в РФ).</div></li>
+          <li><div><b>Аналитика</b> — дашборд: темы, конверсии, точки отвала, NPS, A/B-тесты ответов.</div></li>
+          <li><div><b>152-ФЗ</b> — данные в РФ-юрисдикции, локальный self-host LLM, без выноса ПДн наружу.</div></li>
+        </ul>
+      </div>
+
+      <div class="chat-wrap reveal" data-delay="2">
+        <div class="chat-head">
+          <div class="av chat-avatar">A</div>
+          <div class="info">
+            <div class="name">Анна · AI-консультант</div>
+            <div class="status">online · отвечает за 1–3 сек</div>
+          </div>
+          <button class="reset" id="resetBtn">↺ сброс</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+          <!-- messages injected by JS -->
+        </div>
+        <div class="chips" id="chips"></div>
+        <form class="chat-input" id="form" autocomplete="off">
+          <input type="text" id="inp" placeholder="Напишите сообщение…" />
+          <button type="submit" id="send">→</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="h-eyebrow">// интеграции</div>
+    <h2 class="h">Подключается к тому, что <em>уже есть.</em></h2>
+    <p class="h-sub">Не надо менять CRM, мессенджеры или базу знаний. Бот работает поверх.</p>
+    <div class="int-grid">
+      <div class="int reveal" data-delay="1"><div class="ic" style="background:linear-gradient(135deg,#229ED9,#42b9f5);-webkit-background-clip:text;background-clip:text;color:transparent">✈</div><div class="nm">Telegram</div></div>
+      <div class="int reveal" data-delay="1"><div class="ic" style="color:#25D366">●</div><div class="nm">WhatsApp</div></div>
+      <div class="int reveal" data-delay="2"><div class="ic" style="color:#ff7a00">▲</div><div class="nm">amoCRM</div></div>
+      <div class="int reveal" data-delay="2"><div class="ic" style="color:#2fc6f6">◆</div><div class="nm">Bitrix24</div></div>
+      <div class="int reveal" data-delay="3"><div class="ic" style="color:#f5b947">■</div><div class="nm">1С</div></div>
+      <div class="int reveal" data-delay="3"><div class="ic" style="color:#fff">▤</div><div class="nm">Notion</div></div>
+      <div class="int reveal" data-delay="4"><div class="ic" style="color:#0f9d58">▦</div><div class="nm">Google Sheets</div></div>
+      <div class="int reveal" data-delay="4"><div class="ic" style="color:#ffbf00">▣</div><div class="nm">Airtable</div></div>
+      <div class="int reveal" data-delay="1"><div class="ic" style="color:#e74c3c">⊙</div><div class="nm">iiko</div></div>
+      <div class="int reveal" data-delay="2"><div class="ic" style="color:#ff6b35">◉</div><div class="nm">r_keeper</div></div>
+      <div class="int reveal" data-delay="3"><div class="ic" style="color:#ffcc00">◐</div><div class="nm">Я.Метрика</div></div>
+      <div class="int reveal" data-delay="4"><div class="ic" style="color:#f9ab00">◑</div><div class="nm">GA4</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="reveal" style="background: linear-gradient(180deg, transparent, rgba(94,234,212,.04)); border-top: 1px solid var(--line); padding: 80px 0; text-align: center;">
+  <div class="wrap">
+    <h2 class="h" style="margin: 0 auto 18px; max-width: 600px;">Хотите такого же <em>сотрудника</em><br>в свою команду?</h2>
+    <p class="h-sub" style="margin: 0 auto 32px;">Пилот за 14 дней — 150К ₽, оплата 50/50. Гарантия возврата при Δ &lt; 30%.</p>
+    <div style="display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+      <a class="btn primary" href="../../index.html#contact">Заказать пилота →</a>
+      <a class="btn ghost" href="../content/index.html">Следующий проект: AI-контент →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Reveal observer with safety net
+(function() {
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0, rootMargin: '0px 0px -50px 0px' });
+  els.forEach(el => io.observe(el));
+  setTimeout(() => {
+    els.forEach(el => { if (!el.classList.contains('in')) el.classList.add('in'); });
+  }, 1500);
+})();
+
+// Live chat demo: realistic lead-qualification flow
+const $ = (s) => document.querySelector(s);
+const body = $('#chatBody');
+const chipsEl = $('#chips');
+const inp = $('#inp');
+const form = $('#form');
+const sendBtn = $('#send');
+const resetBtn = $('#resetBtn');
+
+let step = 0;
+let lead = {};
+let busy = false;
+
+const addMsg = (text, who='b', meta='') => {
+  const el = document.createElement('div');
+  el.className = 'msg ' + who;
+  el.innerHTML = text + (meta ? `<span class="meta">${meta}</span>` : '');
+  body.appendChild(el);
+  body.scrollTop = body.scrollHeight;
+};
+const addTyping = () => {
+  const el = document.createElement('div');
+  el.className = 'typing'; el.id = 'typing';
+  el.innerHTML = '<i></i><i></i><i></i>';
+  body.appendChild(el);
+  body.scrollTop = body.scrollHeight;
+};
+const rmTyping = () => { const t = document.getElementById('typing'); if (t) t.remove(); };
+const setChips = (arr) => {
+  chipsEl.innerHTML = '';
+  arr.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.type = 'button'; b.textContent = c;
+    b.onclick = () => { handle(c); };
+    chipsEl.appendChild(b);
+  });
+};
+const clearChips = () => chipsEl.innerHTML = '';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+async function bot(text) {
+  busy = true; sendBtn.disabled = true;
+  addTyping();
+  const delay = 600 + Math.min(2200, text.length * 18);
+  await wait(delay);
+  rmTyping();
+  addMsg(text, 'b');
+  busy = false; sendBtn.disabled = false;
+}
+async function user(text) {
+  if (busy) return;
+  addMsg(text, 'u');
+  inp.value = '';
+}
+async function handle(text) {
+  if (busy) return;
+  await user(text);
+  await stepFlow(text);
+}
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!inp.value.trim()) return;
+  handle(inp.value.trim());
+});
+resetBtn.onclick = () => { body.innerHTML = ''; lead = {}; step = 0; start(); };
+
+const flow = [
+  // step 0: greet
+  async () => {
+    await bot('Здравствуйте! Я Анна, AI-консультант студии. Подскажу по услугам, ценам и срокам. Что вас интересует?');
+    setChips(['Сайт под ключ', 'AI-бот', 'Контент / видео', 'Автоматизация', 'Просто узнать цены']);
+  },
+  // step 1: take interest
+  async (t) => {
+    lead.interest = t;
+    const map = {
+      'Сайт под ключ': 'сайт', 'AI-бот': 'AI-бот', 'Контент / видео': 'контент',
+      'Автоматизация': 'автоматизация', 'Просто узнать цены': 'цены'
+    };
+    const key = map[t] || t;
+    if (key === 'сайт') return step2_site();
+    if (key === 'AI-бот') return step2_bot();
+    if (key === 'контент') return step2_content();
+    if (key === 'автоматизация') return step2_auto();
+    return step2_other();
+  },
+];
+async function step2_site() {
+  await bot('Отлично, делаем красиво. Какой формат ближе — премиум-лендинг, корпоративный сайт или интернет-магазин?');
+  setChips(['Лендинг', 'Корп. сайт', 'Интернет-магазин']);
+  step = (t) => step3_company(t);
+}
+async function step2_bot() {
+  await bot('AI-бот — моя основная специализация. Где он будет работать?');
+  setChips(['Telegram', 'WhatsApp', 'Виджет на сайте', 'Все каналы']);
+  step = (t) => step3_company(t);
+}
+async function step2_content() {
+  await bot('Контент-конвейер — это интересно. Что чаще нужно — фото, видео, озвучка или аватары?');
+  setChips(['Фото', 'Видео', 'Озвучка', 'Всё вместе']);
+  step = (t) => step3_company(t);
+}
+async function step2_auto() {
+  await bot('Автоматизация — связываю CRM, 1С, мессенджеры. Какая главная боль прямо сейчас?');
+  setChips(['Рутина в CRM', 'Документы в 1С', 'Связать мессенджеры', 'Отчёты вручную']);
+  step = (t) => step3_company(t);
+}
+async function step2_other() {
+  await bot('Понял. Расскажите в двух словах, что нужно — задам уточняющие вопросы.');
+  clearChips();
+  step = (t) => step3_company(t);
+}
+async function step3_company(t) {
+  lead.scope = t;
+  await bot('Хорошо. Подскажите, как называется ваша компания и что делаете?');
+  clearChips();
+  step = step4_budget;
+}
+async function step4_budget(t) {
+  lead.company = t;
+  await bot(`Понял, ${t}. И последний вопрос — какой у вас примерный бюджет на этот проект?`);
+  setChips(['до 150К ₽', '150–500К ₽', '500К–1.5М ₽', 'от 1.5М ₽', 'Сначала посчитайте']);
+  step = step5_done;
+}
+async function step5_done(t) {
+  lead.budget = t;
+  await bot('Спасибо! Я зафиксировала всё, что нужно. Сейчас создам заявку и подключу менеджера — он свяжется в течение 2 часов в рабочее время.');
+  clearChips();
+  await wait(800);
+  // CRM card
+  const card = document.createElement('div');
+  card.className = 'crm-card';
+  card.innerHTML = `
+    <div class="head">
+      <span class="ix">amoCRM · лид #48217</span>
+      <span class="ok">✓ создано</span>
+    </div>
+    <div class="field"><span class="k">Интерес</span><span class="v">${lead.interest || '—'}</span></div>
+    <div class="field"><span class="k">Формат</span><span class="v">${lead.scope || '—'}</span></div>
+    <div class="field"><span class="k">Компания</span><span class="v">${lead.company || '—'}</span></div>
+    <div class="field"><span class="k">Бюджет</span><span class="v">${lead.budget}</span></div>
+    <div class="field"><span class="k">Источник</span><span class="v">Telegram-бот</span></div>
+    <div class="field"><span class="k">Тэг</span><span class="v" style="color:var(--accent)">горячий · квалифицирован</span></div>
+  `;
+  body.appendChild(card);
+  body.scrollTop = body.scrollHeight;
+  await wait(1200);
+  await bot('Готово. Если есть время, могу прямо сейчас показать 3 релевантных кейса по вашей теме — или сразу зову менеджера?');
+  setChips(['Покажи кейсы', 'Зови менеджера', 'Спасибо, я сам(а)']);
+  step = (t) => bot('Принято! Заявка уже в работе, менеджер свяжется в ближайшее время. Хорошего дня! 🤝');
+}
+
+async function stepFlow(text) {
+  if (step) await step(text);
+}
+
+async function start() {
+  await wait(400);
+  await flow[0]();
+}
+start();
+</script>
+
+</body>
+</html>

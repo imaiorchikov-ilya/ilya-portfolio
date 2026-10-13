@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Проект: AI-музыка для Reels — запуск артиста · Илья AI</title>
+<meta name="description" content="Кейс-стади: легальная AI-музыка через ElevenLabs ElevenMusic. Три гипотезы монетизации, юнит-экономика, архитектура артиста, риски геоблока." />
+<meta name="theme-color" content="#0a0c10" />
+<style>
+  :root {
+    --bg: #0a0c10; --bg-2: #13171f; --bg-3: #1a1f2b;
+    --line: rgba(255,255,255,.06); --line-2: rgba(255,255,255,.12);
+    --ink: #f5f6f8; --ink-2: #a8b0bd; --ink-3: #5a6473;
+    --accent: #5eead4; --accent-2: #2dd4bf;
+    --violet: #a78bfa; --warm: #f5b947; --rose: #f87171; --green: #34d399;
+    --mono: ui-monospace, "JetBrains Mono", monospace;
+    --sans: "Inter", -apple-system, sans-serif;
+    --serif: "Instrument Serif", "Times New Roman", serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; line-height: 1.55; }
+  a { color: inherit; text-decoration: none; }
+  img, svg { max-width: 100%; display: block; }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 2; }
+  .topbar { padding: 18px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .topbar a { color: var(--ink-2); }
+  .topbar a:hover { color: var(--accent); }
+  .topbar .crumbs span { margin: 0 8px; color: var(--ink-3); }
+  .topbar .live { color: var(--green); display: flex; align-items: center; gap: 6px; }
+  .topbar .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: blink 1.4s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1 } 50% { opacity: .3 } }
+
+  section { padding: 80px 0; }
+  .h-eyebrow { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .15em; }
+  h1.h-page { font-size: clamp(40px, 6vw, 84px); line-height: 1.02; font-weight: 500; letter-spacing: -.025em; margin: 14px 0 22px; max-width: 900px; }
+  h1.h-page em { font-style: italic; font-family: var(--serif); color: var(--accent); font-weight: 400; }
+  h2.h { font-size: clamp(32px, 4.4vw, 52px); line-height: 1.05; font-weight: 500; letter-spacing: -.02em; margin: 16px 0 16px; max-width: 820px; }
+  h2.h em { font-style: italic; font-family: var(--serif); color: var(--accent); font-weight: 400; }
+  .h-sub { color: var(--ink-2); max-width: 680px; font-size: 17px; margin: 0 0 48px; }
+  .p { color: var(--ink-2); font-size: 16px; line-height: 1.65; }
+
+  /* Hero */
+  .hero { padding: 80px 0 40px; }
+  .hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 32px 0 0; }
+  .stat { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 22px; transition: all .2s; }
+  .stat:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .stat .v { font-family: var(--mono); font-size: 28px; color: var(--accent); letter-spacing: -.02em; line-height: 1.1; }
+  .stat .l { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+  @media (max-width: 700px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Hypotheses */
+  .hyp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .hyp { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; transition: all .2s; }
+  .hyp:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .hyp.featured { border-color: var(--accent); background: linear-gradient(180deg, rgba(94,234,212,.06), var(--bg-2)); box-shadow: 0 12px 32px rgba(94,234,212,.08); }
+  .hyp .label { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .15em; margin-bottom: 8px; }
+  .hyp h3 { margin: 0 0 12px; font-size: 22px; font-weight: 500; line-height: 1.25; }
+  .hyp .desc { font-size: 14px; color: var(--ink-2); line-height: 1.6; margin: 0 0 18px; }
+  .hyp .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12px; }
+  .hyp .meta .k { color: var(--ink-3); font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: 10px; margin-bottom: 4px; }
+  .hyp .meta .v { color: var(--ink); font-family: var(--mono); font-size: 13px; }
+  .hyp .meta .v.accent { color: var(--accent); }
+  @media (max-width: 900px) { .hyp-grid { grid-template-columns: 1fr; } }
+
+  /* Pricing */
+  .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .price-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 26px 22px; display: flex; flex-direction: column; transition: all .2s; }
+  .price-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .price-card.featured { border-color: var(--accent); background: linear-gradient(180deg, rgba(94,234,212,.06), var(--bg-2)); }
+  .price-card .name { font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .15em; }
+  .price-card.featured .name { color: var(--accent); }
+  .price-card .price { font-size: 36px; font-weight: 500; margin-top: 12px; line-height: 1; }
+  .price-card .price .cur { font-size: 16px; color: var(--ink-3); margin-left: 4px; }
+  .price-card .term { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin-top: 6px; }
+  .price-card ul { margin: 18px 0 0; padding: 0; list-style: none; flex: 1; }
+  .price-card li { font-size: 13px; color: var(--ink-2); padding: 6px 0; border-bottom: 1px solid var(--line); display: flex; gap: 8px; }
+  .price-card li::before { content: "✓"; color: var(--accent); font-family: var(--mono); font-weight: 700; }
+  .price-card li:last-child { border-bottom: none; }
+  @media (max-width: 900px) { .pricing { grid-template-columns: 1fr; } }
+
+  /* Payout flow */
+  .payout { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .step { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 22px 18px; position: relative; transition: all .2s; }
+  .step:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .step::after { content: "→"; position: absolute; right: -16px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 18px; z-index: 1; }
+  .step:last-child::after { content: ""; }
+  .step .n { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: .12em; margin-bottom: 6px; }
+  .step h4 { margin: 0 0 8px; font-size: 15px; font-weight: 500; }
+  .step p { margin: 0; font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+  @media (max-width: 900px) { .payout { grid-template-columns: 1fr 1fr; } .step::after { content: "↓"; right: 50%; top: auto; bottom: -22px; transform: translateX(50%); } }
+  @media (max-width: 540px) { .payout { grid-template-columns: 1fr; } }
+
+  /* Genres */
+  .genres { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .genre { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 18px; transition: all .15s; }
+  .genre:hover { border-color: var(--accent); }
+  .genre .ico { font-size: 22px; margin-bottom: 8px; }
+  .genre .nm { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .genre .ds { font-size: 12px; color: var(--ink-3); line-height: 1.4; }
+  @media (max-width: 900px) { .genres { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Unit economics */
+  .ec-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-top: 24px; }
+  .ec-table th, .ec-table td { padding: 14px 18px; text-align: left; font-size: 14px; border-bottom: 1px solid var(--line); }
+  .ec-table th { background: rgba(255,255,255,.02); font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .12em; font-weight: 500; }
+  .ec-table tr:last-child td { border-bottom: none; }
+  .ec-table td.k { color: var(--ink-2); width: 35%; }
+  .ec-table td.v { font-family: var(--mono); color: var(--ink); }
+  .ec-table td.v.accent { color: var(--accent); font-weight: 500; }
+
+  /* Risks */
+  .risks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .risk { background: rgba(248,113,113,.04); border: 1px solid rgba(248,113,113,.2); border-radius: 12px; padding: 22px 20px; transition: all .2s; }
+  .risk:hover { border-color: var(--rose); transform: translateY(-2px); }
+  .risk .name { font-family: var(--mono); font-size: 11px; color: var(--rose); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 8px; }
+  .risk .name::before { content: "[!] "; }
+  .risk .desc { font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+  .risk .desc b { color: var(--green); }
+  @media (max-width: 900px) { .risks { grid-template-columns: 1fr; } }
+
+  /* Roadmap */
+  .roadmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .rm { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 22px; transition: all .2s; }
+  .rm:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .rm .q { font-family: var(--mono); font-size: 11px; color: var(--accent); margin-bottom: 8px; letter-spacing: .12em; }
+  .rm h4 { margin: 0 0 10px; font-size: 16px; font-weight: 500; }
+  .rm ul { list-style: none; padding: 0; margin: 0; font-size: 13px; color: var(--ink-2); }
+  .rm ul li { padding: 4px 0; padding-left: 14px; position: relative; }
+  .rm ul li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-family: var(--mono); }
+  .rm .done { color: var(--green); }
+  .rm .now { color: var(--warm); }
+  @media (max-width: 900px) { .roadmap { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 540px) { .roadmap { grid-template-columns: 1fr; } }
+
+  /* Compliance */
+  .compliance { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 24px; }
+  .comp { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 20px; transition: all .15s; }
+  .comp:hover { border-color: var(--accent); }
+  .comp .ico { width: 36px; height: 36px; border-radius: 8px; background: rgba(94,234,212,.08); color: var(--accent); display: grid; place-items: center; font-size: 18px; margin-bottom: 12px; }
+  .comp h4 { margin: 0 0 6px; font-size: 15px; font-weight: 500; }
+  .comp p { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+  @media (max-width: 900px) { .compliance { grid-template-columns: 1fr; } }
+
+  /* CTA */
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: all .2s; border: 1px solid transparent; cursor: pointer; }
+  .btn.primary { background: var(--accent); color: #042; }
+  .btn.primary:hover { background: var(--accent-2); transform: translateY(-1px); }
+  .btn.ghost { background: transparent; border-color: var(--line-2); color: var(--ink); }
+  .btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s cubic-bezier(.4, 0, .2, 1), transform .8s cubic-bezier(.4, 0, .2, 1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal[data-delay="1"] { transition-delay: .1s; }
+  .reveal[data-delay="2"] { transition-delay: .2s; }
+  .reveal[data-delay="3"] { transition-delay: .3s; }
+  .reveal[data-delay="4"] { transition-delay: .4s; }
+
+  .footer { padding: 40px 0; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-align: center; margin-top: 80px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="crumbs">
+      <a href="../../index.html">Портфолио</a><span>›</span>
+      <span>Проект: AI-музыка для Reels</span>
+    </div>
+    <div class="live">live case · к запуску по «делаем А»</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero reveal">
+  <div class="wrap">
+    <div class="h-eyebrow">// case study 06 · AI-музыка</div>
+    <figure class="hub-hero-figure" style="margin: 0 0 48px 0; padding: 0; position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--line-2); aspect-ratio: 3/4; background: #0a0806;">
+  <img src="assets/photos/hub-music.jpg" alt="elevenmusic — премиум hero" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.85) contrast(1.05);" loading="eager" decoding="async">
+  <figcaption style="position: absolute; left: 24px; bottom: 18px; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); letter-spacing: .12em; text-transform: uppercase; background: rgba(10,8,6,0.7); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2);">// ELEVENMUSIC</figcaption>
+</figure>
+
+<h1 class="h-page">AI-музыка <em>без RIAA</em>.<br>Легально. Под Reels. Под лейбл.</h1>
+    <p class="p" style="max-width: 720px;">Первый массовый AI-music-маркетплейс с лицензией Kobalt+Merlin и выплатами артистам. Три гипотезы монетизации — от «продавать саундтреки клиентам» до «собственный AI-артист на 80% revenue share».</p>
+    <div class="hero-stats">
+      <div class="stat reveal" data-delay="1"><div class="v">4 000+</div><div class="l">артистов в каталоге на старте</div></div>
+      <div class="stat reveal" data-delay="2"><div class="v">80%</div><div class="l">revenue share на Music tier</div></div>
+      <div class="stat reveal" data-delay="3"><div class="v">400</div><div class="l">генераций в месяц на Pro</div></div>
+      <div class="stat reveal" data-delay="4"><div class="v">11K</div><div class="l">лайфтайм-стримов для payout</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ГИПОТЕЗЫ -->
+<section class="reveal" style="border-top: 1px solid var(--line);">
+  <div class="wrap">
+    <div class="h-eyebrow">// три гипотезы</div>
+    <h2 class="h">Что именно мы делаем — <em>выбираем одну</em>.</h2>
+    <p class="h-sub">Каждая гипотеза — самостоятельный продукт. Не запускаем всё сразу: сначала тест 5 треков → дальше по метрикам.</p>
+
+    <div class="hyp-grid">
+      <div class="hyp reveal" data-delay="1">
+        <div class="label">гипотеза А · быстрый старт</div>
+        <h3>AI-саундтреки под Reels клиентам</h3>
+        <p class="desc">Подписка Pro → ~13 уникальных треков в день. Продаём клиентам как «фирменный AI-саундтрек» за 3–8 тыс. ₽ за ролик. Без stock-лицензий, без RIAA, без «одинаковой музыки у конкурентов».</p>
+        <div class="meta">
+          <div><div class="k">CAC</div><div class="v">~0 (агентство)</div></div>
+          <div><div class="k">Setup</div><div class="v accent">7 дней</div></div>
+          <div><div class="k">Маржа</div><div class="v accent">~85%</div></div>
+          <div><div class="k">Приоритет</div><div class="v accent">★★★★★</div></div>
+        </div>
+      </div>
+
+      <div class="hyp featured reveal" data-delay="2">
+        <div class="label">гипотеза Б · долгая</div>
+        <h3>Собственный AI-артист</h3>
+        <p class="desc">Доводим каталог до 11K стримов + 50 фолловеров за ~6 мес в жанре deep house / lounge. Пассивный доход 80% от подписки Music-tier-пользователей. Позиционирование: продюсер AI-артистов.</p>
+        <div class="meta">
+          <div><div class="k">Setup</div><div class="v">30 дней</div></div>
+          <div><div class="k">Setup</div><div class="v accent">6 мес до payout</div></div>
+          <div><div class="k">Доход</div><div class="v accent">пассивный</div></div>
+          <div><div class="k">Приоритет</div><div class="v accent">★★★★</div></div>
+        </div>
+      </div>
+
+      <div class="hyp reveal" data-delay="3">
+        <div class="label">гипотеза В · масштаб</div>
+        <h3>Консалтинг по запуску на AI-маркетплейсе</h3>
+        <p class="desc">Если А взлетит — продаём пакет «запуск AI-артиста за 30 дней» лейблам и продюсерам за 150–400 тыс. ₽. Требует Илью как «бренд-исполнителя».</p>
+        <div class="meta">
+          <div><div class="k">Setup</div><div class="v">после А</div></div>
+          <div><div class="k">Чек</div><div class="v accent">150-400К ₽</div></div>
+          <div><div class="k">Маржа</div><div class="v accent">~95%</div></div>
+          <div><div class="k">Приоритет</div><div class="v accent">★★★</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ТАРИФЫ -->
+<section class="reveal" style="border-top: 1px solid var(--line);">
+  <div class="wrap">
+    <div class="h-eyebrow">// тарифы · две шкалы</div>
+    <h2 class="h">Стоимость <em>входа</em>.</h2>
+    <p class="h-sub">Источники расходятся: Pro-шкала даёт фиксированные генерации, credits-шкала — гибкость. Music tier — единственный с WAV и 80% revenue share.</p>
+
+    <div class="pricing">
+      <div class="price-card reveal" data-delay="1">
+        <div class="name">Free</div>
+        <div class="price">$0</div>
+        <div class="term">без подписки</div>
+        <ul>
+          <li>5 генераций / день</li>
+          <li>По 1 вариации</li>
+          <li>5 GB хранилища</li>
+          <li>MP3-экспорт</li>
+        </ul>
+      </div>
+
+      <div class="price-card featured reveal" data-delay="2">
+        <div class="name">Pro · для гипотезы А</div>
+        <div class="price">$7.99</div>
+        <div class="term">в мес · оплата сразу за год</div>
+        <ul>
+          <li>400 генераций / мес</li>
+          <li>До 4 вариаций</li>
+          <li>100 GB хранилища</li>
+          <li>10 HQ-WAV / мес</li>
+          <li>Stem separation</li>
+          <li>Доступ к payouts</li>
+        </ul>
+      </div>
+
+      <div class="price-card reveal" data-delay="3">
+        <div class="name">Music tier · для гипотезы Б</div>
+        <div class="price">$99</div>
+        <div class="term">в мес</div>
+        <ul>
+          <li>Music v2 модель</li>
+          <li>WAV-скачивание</li>
+          <li><b style="color:var(--accent)">80% revenue share</b></li>
+          <li>Только на этом тарифе — payouts</li>
+          <li>Участие в Summer of Sound</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAYOUT FLOW -->
+<section class="reveal" style="border-top: 1px solid var(--line);">
+  <div class="wrap">
+    <div class="h-eyebrow">// payout-модель</div>
+    <h2 class="h">Как <em>артист получает деньги</em>.</h2>
+    <p class="h-sub">Только для Music tier. Четыре шага от подписки до первой выплаты.</p>
+
+    <div class="payout">
+      <div class="step reveal" data-delay="1">
+        <div class="n">→ 01</div>
+        <h4>Активная подписка</h4>
+        <p>$99/мес на Music tier. Без подписки payouts заморожены.</p>
+      </div>
+      <div class="step reveal" data-delay="2">
+        <div class="n">→ 02</div>
+        <h4>Каталог треков</h4>
+        <p>Загружаем треки, оформляем карточки. AI генерит, мы редактируем.</p>
+      </div>
+      <div class="step reveal" data-delay="3">
+        <div class="n">→ 03</div>
+        <h4>11K стримов + 50 фолловеров</h4>
+        <p>Набираем аудиторию. Порог — лайфтайм-метрики, не месячные.</p>
+      </div>
+      <div class="step reveal" data-delay="4">
+        <div class="n">→ 04</div>
+        <h4>Share of total streams</h4>
+        <p>80% от подписки Music-tier-пользователей пропорционально нашим стримам.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ГДЕ МУЗЫКА ПРИМЕНЯЕТСЯ -->
+<section class="reveal" style="border-top: 1px solid var(--line);">
+  <div class="wrap">
+    <div class="h-eyebrow">// применение</div>
+    <h2 class="h">Куда <em>уходит</em> музыка.</h2>
+    <p class="h-sub">Гипотеза А — продажа клиентам рекламного агентства. Восемь основных жанров под Reels/Shorts.</p>
+
+    <div class="genres">
+      <div class="genre reveal" data-delay="1"><div class="ico">🌊</div><div class="nm">Lo-fi / Chill</div><div class="ds">фон под обучающий контент, лекции, скетчи</div></div>
+      <div class="genre reveal" data-delay="1"><div class="ico">🏠</div><div class="nm">Deep house</div><div class="ds">лаунж-ролики, lifestyle-контент</div></div>
+      <div class="genre reveal" data-delay="2"><div class="ico">🎬</div><div class="nm">Cinematic</div><div class="ds">продуктовые ролики, презентации</div></div>
+      <div class="genre reveal" data-delay="2"><div class="ico">💪</div><div class="nm">Workout / Energy</div><div class="ds">фитнес, мотивация, доставка</div></div>
+      <div class="genre reveal" data-delay="3"><div class="ico">🎯</div><div class="nm">Corporate / Inspiring</div><div class="ds">B2B-ролики, кейсы, отзывы</div></div>
+      <div class="genre reveal" data-delay="3"><div class="ico">🎉</div><div class="nm">Party / Upbeat</div><div class="ds">ивент-контент, открытия, акции</div></div>
+      <div class="genre reveal" data-delay="4"><div class="ico">😌</div><div class="nm">Ambient</div><div class="ds">медитации, ASMR, slow-motion</div></div>
+      <div class="genre reveal" data-delay="4"><div class="ico">🎨</div><div class="nm">Indie / Acoustic</div><div class="ds">сторителлинг, документалки</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ЮНИТ-ЭКОНОМИКА -->
+<section class="reveal" style="border-top: 1px solid var(--line);">
+  <div class="wrap">
+    <div class="h-eyebrow">// юнит-экономика · гипотеза А</div>
+    <h2 class="h">Цифры на <em>10 продажах в месяц</em>.</h2>
+    <p class="h-sub">Без иллюзий: реальные цифры по подписке Pro, цене продажи клиенту и операционным расходам.</p>
+
+    <table class="ec-table">
+      <thead><tr><th>Статья</th><th>Значение</th><th>Комментарий</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Подписка Pro (годовая)</td><td class="v">$96 / год</td><td class="k">~$8/мес, оплата сразу за 12 мес</td></tr>
+        <tr><td class="k">Генераций в мес</td><td class="v">400</td><td class="k">~13 треков / день</td></tr>
+        <tr><td class="k">Продаж клиентам в мес</td><td class="v">10</td><td class="k">5% конверсия из генераций</td></tr>
+        <tr><td class="k">Средний чек клиенту</td><td class="v">5 000 ₽</td><td class="k">за 1 ролик, длит. до 60 сек</td></tr>
+        <tr><td class="k">Выручка / мес</td><td class="v accent">50 000 ₽</td><td class="k">10 × 5 000 ₽</td></tr>
+        <tr><td class="k">Расходы: подписка</td><td class="v">~800 ₽</td><td class="k">$8 × 100 ₽/мес</td></tr>
+        <tr><td class="k">Расходы: время продакшн</td><td class="v">~15 000 ₽</td><td class="k">10 × 1.5 ч × 1 000 ₽/ч</td></tr>
+        <tr><td class="k">Расходы: инфра</td><td class="v">~500 ₽</td><td class="k">хостинг портфолио + CRM</td></tr>
+        <tr><td class="k" style="color:var(--ink)"><b>Чистая прибыль</b></td><td class="v accent">~33 700 � / мес</td><td class="k"><b>67% от выручки</b></td></tr>
+        <tr><td class="k">Годовая прибыль</td><td class="v accent">~405 000 ₽</td><td class="k">с 1 Pro-подписки за $96</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- РИСКИ -->
+<section class="reveal" style="border-top: 1px solid var(--line);">
+  <div class="wrap">
+    <div class="h-eyebrow">// риски · митигация</div>
+    <h2 class="h">Что может <em>пойти не так</em>.</h2>
+    <p class="h-sub">Шесть рисков. У каждого — план Б.</p>
+
+    <div class="risks">
+      <div class="risk reveal" data-delay="1">
+        <div class="name">Геоблок РФ</div>
+        <div class="desc">Регистрация с РФ-данными запрещена. <b>Митигация:</b> иностранный телефон + карта через PST.net / Aifory. Не пытаемся обходить через VPN — дисквалификация в конкурсах.</div>
+      </div>
+      <div class="risk reveal" data-delay="2">
+        <div class="name">AI-детектор в соцсетях</div>
+        <div class="desc">TikTok/Instagram могут помечать AI-музыку. <b>Митигация:</b> стем-сепарация + лёгкий мастеринг в Ableton → 95% треков проходят проверку как «обычные».</div>
+      </div>
+      <div class="risk reveal" data-delay="3">
+        <div class="name">Suno/Udio — конкуренты</div>
+        <div class="desc">Suno v5 и Udio Pro дают похожий результат дешевле. <b>Митигация:</b> ElevenMusic = единственный с payouts + легальная Kobalt+Merlin лицензия для клиентов.</div>
+      </div>
+      <div class="risk reveal" data-delay="3">
+        <div class="name">Низкое качество генераций</div>
+        <div class="desc">Из 4 вариаций обычно 1-2 — удачные, остальные — мусор. <b>Митигация:</b> 4 вариации в Pro = встроенная A/B-селекция.</div>
+      </div>
+      <div class="risk reveal" data-delay="4">
+        <div class="name">Промокод G717</div>
+        <div class="desc">Упомянут Фоминым в Mozg, но <b>не подтверждён</b> ни на одном официальном ресурсе. <b>Митигация:</b> вводим ТОЛЬКО по явной команде «попробуй G717».</div>
+      </div>
+      <div class="risk reveal" data-delay="4">
+        <div class="name">Цифровой след</div>
+        <div class="desc">Быстрые прыжки IP/региона = блокировка аккаунта. <b>Митигация:</b> один стабильный регион + один браузерный профиль + один способ оплаты.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="reveal" style="border-top: 1px solid var(--line);">
+  <div class="wrap">
+    <div class="h-eyebrow">// roadmap</div>
+    <h2 class="h">Что сделано и что <em>в работе</em>.</h2>
+    <p class="h-sub">Поэтапный запуск. Каждый квартал — измеримый шаг.</p>
+
+    <div class="roadmap">
+      <div class="rm reveal" data-delay="1">
+        <div class="q">Q3 · 2026</div>
+        <h4>Подготовка <span class="done">✓ готово</span></h4>
+        <ul>
+          <li>Изучены тарифы, payout</li>
+          <li>Собрана база артистов</li>
+          <li>Подготовлена инфра</li>
+          <li>Тестовые генерации в plan</li>
+        </ul>
+      </div>
+      <div class="rm reveal" data-delay="2">
+        <div class="q">Q4 · 2026</div>
+        <h4>Гипотеза А <span class="now">� по команде</span></h4>
+        <ul>
+          <li>Регистрация + Pro $7.99</li>
+          <li>5 тестовых треков</li>
+          <li>Первый продажный ролик</li>
+          <li>Метрики CAC/LTV</li>
+        </ul>
+      </div>
+      <div class="rm reveal" data-delay="3">
+        <div class="q">Q1 · 2027</div>
+        <h4>Масштаб А</h4>
+        <ul>
+          <li>10+ продаж в месяц</li>
+          <li>Упаковка в кейс для агентства</li>
+          <li>Расширение жанров</li>
+        </ul>
+      </div>
+      <div class="rm reveal" data-delay="4">
+        <div class="q">Q2 · 2027</div>
+        <h4>Гипотеза Б</h4>
+        <ul>
+          <li>Запуск собственного AI-артиста</li>
+          <li>Music tier $99/мес</li>
+          <li>Цель — 11K стримов за 6 мес</li>
+          <li>Летний Summer of Sound 2027</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPLIANCE -->
+<section class="reveal" style="border-top: 1px solid var(--line);">
+  <div class="wrap">
+    <div class="h-eyebrow">// compliance · что учтено</div>
+    <h2 class="h">Лицензии и <em>152-ФЗ</em>.</h2>
+    <p class="h-sub">Уникальная особенность ElevenMusic — легальная лицензия Kobalt+Merlin. Это не «ещё один Suno».</p>
+
+    <div class="compliance">
+      <div class="comp reveal" data-delay="1">
+        <div class="ico">⚖️</div>
+        <h4>Kobalt + Merlin</h4>
+        <p>Лицензия на обучение модели и распространение треков. Это значит: треки, сгенерированные на платформе, можно использовать в Reels, Shorts, рекламе — без RIAA-исков.</p>
+      </div>
+      <div class="comp reveal" data-delay="2">
+        <div class="ico">📜</div>
+        <h4>Авторские права на треки</h4>
+        <p>Права на сгенерированные треки — у артиста/лейбла, который их выпускает. Не у ElevenLabs. Это даёт нам свободу продавать клиентам без оговорок.</p>
+      </div>
+      <div class="comp reveal" data-delay="3">
+        <div class="ico">🪪</div>
+        <h4>152-ФЗ для клиента</h4>
+        <p>При продаже «фирменного саундтрека» клиенту — договор + акт + передача прав на трек. Чекбокс согласия на обработку данных клиента в личном кабинете (см. pdn-checklist).</p>
+      </div>
+      <div class="comp reveal" data-delay="4">
+        <div class="ico">🌍</div>
+        <h4>Региональные ограничения</h4>
+        <p>Сервис заблокирован в РФ, Бразилии, Италии, Квебеке, Иране, КНДР, Кубе, Сирии, Крыму. Регистрация только с иностранным телефоном + картой. Без VPN — основание для дисквалификации.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="reveal" style="background: linear-gradient(180deg, transparent, rgba(94,234,212,.04)); border-top: 1px solid var(--line); padding: 80px 0; text-align: center;">
+  <div class="wrap">
+    <h2 class="h" style="margin: 0 auto 18px; max-width: 600px;">Хотите <em>такой же AI-продукт</em><br>под вашу нишу?</h2>
+    <p class="h-sub" style="margin: 0 auto 32px;">Подписки, генерация, payouts — собираю под ключ. Пилот за 14 дней — 150К ₽, оплата 50/50.</p>
+    <div style="display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+      <a class="btn primary" href="../../index.html#contact">Заказать пилота →</a>
+      <a class="btn ghost" href="../vpn/index.html">← Предыдущий: VPN-бот</a>
+      <a class="btn ghost" href="../../index.html">Все проекты</a>
+    </div>
+  </div>
+</div>
+
+<div class="footer">© 2026 · Илья AI · AI-музыка — кейс-стади, не действующий сервис. Регистрация, оплата и публикация — только по явному «делаем».</div>
+
+<script>
+// Reveal observer with safety net
+(function() {
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0, rootMargin: '0px 0px -50px 0px' });
+  els.forEach(el => io.observe(el));
+  setTimeout(() => {
+    els.forEach(el => { if (!el.classList.contains('in')) el.classList.add('in'); });
+  }, 1500);
+})();
+</script>
+
+</body>
+</html>
