@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Развёрнутые дизайн-проекты под ключ — Илья AI</title>
+<meta name="description" content="Дизайн-проект под ключ одним конвейером: эскизы всех комнат + чертёжный альбом 53 листа в едином ГОСТ-стиле. Пересборка после правки — минуты, приёмка «лист-против-листа»." />
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="64x64" href="../../assets/favicon-64.png" />
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon-180.png" />
+<meta name="theme-color" content="#050608" />
+<meta name="color-scheme" content="dark" />
+<style>
+  :root { --bg:#050608; --ink:#f5f6f8; --ink-2:#a8b0bd; --ink-3:#5a6473; --accent:#5eead4; --line:rgba(255,255,255,.08); }
+  *,*::before,*::after { box-sizing:border-box; }
+  html { background:var(--bg); }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; line-height:1.55; padding:48px 24px; max-width:900px; margin:0 auto; }
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .eyebrow { font-family:ui-monospace,monospace; font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:.15em; }
+  h1 { font-size:clamp(30px,4.5vw,44px); margin:8px 0 16px; letter-spacing:-.02em; font-weight:500; }
+  h1 em { font-style:italic; font-family:"Instrument Serif","Times New Roman",serif; color:var(--accent); font-weight:400; }
+  h2 { font-size:14px; font-weight:500; color:var(--ink-3); text-transform:uppercase; letter-spacing:.12em; margin:40px 0 14px; font-family:ui-monospace,monospace; }
+  .lede { color:var(--ink-2); font-size:17px; max-width:680px; margin:0 0 32px; }
+  ul { padding-left:20px; color:var(--ink-2); }
+  li { margin:6px 0; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin:28px 0; }
+  .stat { border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  .stat b { display:block; font-size:20px; font-weight:600; }
+  .stat span { color:var(--ink-3); font-size:12px; }
+  footer { margin-top:56px; padding-top:20px; border-top:1px solid var(--line); color:var(--ink-3); font-size:12px; font-family:ui-monospace,monospace; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">// дизайн · кейс</div>
+  <h1>Развёрнутые дизайн-проекты <em>под ключ.</em></h1>
+  <p class="lede">Полный дизайн-проект одним пайплайном: фотоколлекция эскизов всех комнат + чертёжный альбом в едином чертёжном стиле по ГОСТ 2.304-81. Альбом собирается программой — любая правка пересобирает весь альбом за минуты, а не дни ручной переклейки.</p>
+
+  <div class="stats">
+    <div class="stat"><b>53</b><span>листа альбома, единый стиль</span></div>
+    <div class="stat"><b>10/10</b><span>эскизов комнат приняты</span></div>
+    <div class="stat"><b>1-в-1</b><span>ведомость проёмов ↔ план (16 кодов)</span></div>
+    <div class="stat"><b>минуты</b><span>пересборка альбома после правки</span></div>
+  </div>
+
+  <h2>// состав альбома</h2>
+  <ul>
+    <li>Титул → состав → планы этажей и зон (АР-05…АР-09)</li>
+    <li>Развёртки стен по зонам (З-01…09) с размерными цепочками в мм</li>
+    <li>Электро (ЭОМ) и слаботочные схемы</li>
+    <li>План полов, ведомости, экспликации, штампы листов N/53</li>
+  </ul>
+
+  <h2>// как работает конвейер</h2>
+  <ul>
+    <li>Эскизы: генерация опорников по комнатам + точечные правки в тех же ракурсах — консистентный вид одного и того же помещения.</li>
+    <li>Чертёжный слой: SVG-генерация → headless-рендер → PDF. Размерные цепочки автосверяются с геометрией (32 значения).</li>
+    <li>Приёмка «лист-против-листа»: каждый лист сравнивается с эталоном по рендеру и числам, не «на глаз».</li>
+    <li>BIM-контур на FreeCAD/Blender наращивается тем же конвейером.</li>
+  </ul>
+
+  <footer>
+    <span>ilya.ai · 2026</span> · <a href="../../index.html">← все проекты</a> · <a href="../../ilya-vizitka/index.html#contact">обсудить проект →</a>
+  </footer>
+</body>
+</html>
