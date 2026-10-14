@@ -46,12 +46,14 @@
   footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--line); color:var(--ink-3); font-size:12px; font-family:ui-monospace,monospace; }
 </style>
 </head>
-<body style="position:relative;padding-top:100px;"><a class="logo-badge" href="./" aria-label="Илья AI — на главную"><img src="assets/favicon-64.png" alt="Логотип — колибри"></a>
+<body style="position:relative;padding-top:100px;"><div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div><a class="logo-badge" href="./" aria-label="Илья AI — на главную"><img src="assets/favicon-64.png" alt="Логотип — колибри"></a>
 <style>
 .logo-badge{position:fixed;top:16px;left:16px;z-index:9999;display:block;line-height:0;border-radius:12px;padding:5px;background:rgba(8,10,15,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(94,234,212,.35);animation:badgeGlow 4.5s ease-in-out infinite;}
 .logo-badge img{width:40px;height:40px;border-radius:8px;display:block;}
 .logo-badge:hover{border-color:rgba(94,234,212,.75);}
 @keyframes badgeGlow{0%,100%{box-shadow:0 0 14px rgba(94,234,212,.18),0 0 34px rgba(94,234,212,.08)}50%{box-shadow:0 0 26px rgba(94,234,212,.38),0 0 60px rgba(94,234,212,.16)}}
+.cursor-glow{position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(closest-side,rgba(94,234,212,.10),transparent 70%);pointer-events:none;z-index:0;transform:translate(-50%,-50%);transition:opacity .3s;mix-blend-mode:screen;}
+@media (hover:none){.cursor-glow{display:none;}}
 </style>
 
 
@@ -125,5 +127,21 @@
   <footer>
     <span>ilya.ai · 2026</span> · <a href="https://github.com/imaiorchikov-ilya/ilya-portfolio" style="color:var(--accent);text-decoration:none">github: открытый код →</a> · <a href="projects/" style="color:var(--accent);text-decoration:none">все проекты</a> · <a href="nova/" style="color:var(--accent);text-decoration:none">nova</a>
   </footer>
+
+<script>
+// Cursor glow follow (как на визитке: мягкое lerp-следование за мышкой)
+(function(){
+  const glow = document.getElementById('cursorGlow');
+  if (!glow || !window.matchMedia('(hover: hover)').matches) return;
+  let raf = null, tx = 0, ty = 0, cx = 0, cy = 0;
+  document.addEventListener('mousemove', (e) => { tx = e.clientX; ty = e.clientY; });
+  function tick() {
+    cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
+    glow.style.left = cx + 'px'; glow.style.top = cy + 'px';
+    raf = requestAnimationFrame(tick);
+  }
+  tick();
+})();
+</script>
 </body>
 </html>
