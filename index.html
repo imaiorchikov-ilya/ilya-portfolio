@@ -22,7 +22,10 @@
   .eyebrow { font-family:ui-monospace,monospace; font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:.15em; }
   h1 { font-size:clamp(36px,5vw,56px); margin:8px 0 16px; letter-spacing:-.025em; font-weight:500; }
   h1 em { font-style:italic; font-family:"Instrument Serif","Times New Roman",serif; color:var(--accent); font-weight:400; }
-  .lede { color:var(--ink-2); font-size:18px; max-width:680px; margin:0 0 40px; }
+  .lede { color:var(--ink-2); font-size:18px; max-width:680px; margin:0 0 24px; }
+  .cta-biz { display:inline-flex; align-items:center; gap:10px; margin:0 0 36px; padding:13px 24px; border-radius:999px; border:1px solid rgba(94,234,212,.45); color:var(--ink); background:linear-gradient(90deg,rgba(94,234,212,.12),rgba(167,139,250,.10)); font-size:15px; font-weight:600; text-decoration:none; transition:transform .2s, border-color .25s, box-shadow .3s; box-shadow:0 0 18px rgba(94,234,212,.10); }
+  .cta-biz:hover { transform:translateY(-2px); border-color:rgba(94,234,212,.8); box-shadow:0 0 30px rgba(94,234,212,.22); }
+  .cta-biz .arr { font-weight:400; }
   h2 { font-size:14px; font-weight:500; color:var(--ink-3); text-transform:uppercase; letter-spacing:.12em; margin:48px 0 16px; font-family:ui-monospace,monospace; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
   @property --ang { syntax:'<angle>'; initial-value:0deg; inherits:false; }
@@ -56,6 +59,7 @@
   <div class="eyebrow">// ilya.ai portfolio · 2026</div>
   <h1>Одиннадцать проектов. <em>Один стек.</em></h1>
   <p class="lede">Мультиагентные конвейеры на CrewAI/LangGraph, автоматизация бухгалтерии (акт М-11: день → 20 минут), RAG-базы знаний с evals, дизайн-проекты под ключ, контент-фабрика, VPN, лендинги, AI-музыка. Формула 99/1: 99% рутину делают агенты, 1% — человек, который за них отвечает.</p>
+  <a class="cta-biz" href="ilya-vizitka/">Для бизнеса — на визитку <span class="arr">→</span></a>
 
   <h2>// проекты</h2>
   <div class="grid">
