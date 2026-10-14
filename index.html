@@ -25,12 +25,24 @@
   .lede { color:var(--ink-2); font-size:18px; max-width:680px; margin:0 0 40px; }
   h2 { font-size:14px; font-weight:500; color:var(--ink-3); text-transform:uppercase; letter-spacing:.12em; margin:48px 0 16px; font-family:ui-monospace,monospace; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
-  a.card { display:block; padding:22px; border:1px solid var(--line); border-radius:14px; color:var(--ink); text-decoration:none; transition:border-color .2s; }
-  a.card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  @property --ang { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+  a.card { position:relative; display:block; padding:22px; border:1px solid transparent; border-radius:14px; color:var(--ink); text-decoration:none;
+    background:
+      linear-gradient(#0a0d12,#0a0d12) padding-box,
+      conic-gradient(from var(--ang), rgba(255,255,255,.09), rgba(94,234,212,.26) 28%, rgba(94,234,212,.05) 50%, rgba(255,255,255,.09) 74%, rgba(94,234,212,.14) 88%, rgba(255,255,255,.09)) border-box;
+    animation:cardBorder 9s linear infinite; transition:transform .2s; }
+  a.card:hover { transform:translateY(-2px); animation-duration:5s; }
   a.card .label { color:var(--accent); font-size:11px; text-transform:uppercase; letter-spacing:.12em; font-family:ui-monospace,monospace; }
   a.card h3 { margin:8px 0 6px; font-size:18px; font-weight:500; }
   a.card p { margin:0; color:var(--ink-2); font-size:14px; line-height:1.5; }
-  a.card.featured { border-color:var(--accent); background:linear-gradient(135deg,rgba(94,234,212,.05),transparent); }
+  a.card.featured {
+    background:
+      linear-gradient(135deg,rgba(94,234,212,.05),transparent) padding-box,
+      linear-gradient(rgba(10,13,18,.92),rgba(10,13,18,.92)) padding-box,
+      conic-gradient(from var(--ang), rgba(94,234,212,.22), rgba(94,234,212,.55) 30%, rgba(94,234,212,.15) 55%, rgba(94,234,212,.35) 75%, rgba(94,234,212,.22)) border-box; }
+  a.card.featured:hover { border-color:var(--accent); }
+  @keyframes cardBorder { to { --ang:360deg; } }
+  @media (prefers-reduced-motion: reduce) { a.card { animation:none; } }
   footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--line); color:var(--ink-3); font-size:12px; font-family:ui-monospace,monospace; }
 </style>
 </head>
