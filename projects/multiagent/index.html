@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Мультиагентные конвейеры — Илья AI · case study 05</title>
+<meta name="description" content="Мультиагентные конвейеры на CrewAI + LangGraph: планирующий агент, исполнители, ревизор, трассировка. Кейс: автоматическое досье по одному URL за минуту, точность 5/6 против эталона. Связка «разведка → действие». Открытый код." />
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="64x64" href="../../assets/favicon-64.png" />
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon-180.png" />
+<meta name="theme-color" content="#050608" />
+<style>
+:root{--bg:#0a0a0a;--ink:#f5f5f7;--ink-2:#a8a8b3;--ink-3:#6b6b76;--accent:#5eead4;--accent-2:#2dd4bf;--line:rgba(245,245,247,.08);--line-2:rgba(245,245,247,.14);--mono:ui-monospace,"SF Mono",Cascadia Code,Menlo,Consolas,monospace;--serif:"Cormorant Garamond","Times New Roman",serif;}
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;background:var(--bg);}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;padding-top:84px;}
+h1,h2,h3,h4{line-height:1.15;letter-spacing:-.02em;}
+h1{font-size:clamp(34px,7vw,100px);font-weight:500;margin:0 0 28px;}
+h1 em{font-style:italic;font-family:var(--serif);font-weight:400;color:var(--accent);}
+h2{font-size:clamp(30px,4vw,44px);font-weight:500;margin:0 0 20px;letter-spacing:-.01em;}
+h3{font-size:clamp(22px,3vw,30px);font-weight:500;margin:0 0 14px;}
+p{color:var(--ink-2);font-size:17px;margin:0 0 16px;}
+a{color:var(--accent);}
+.h-eyebrow{font-family:var(--mono);font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.2em;}
+.h-eyebrow::before{content:"// ";}
+.h-sub{font-size:20px;color:var(--ink-2);max-width:760px;}
+section{padding:100px 0;border-top:1px solid var(--line);}
+.logo-badge{position:fixed;top:16px;left:16px;z-index:9999;display:block;line-height:0;border-radius:12px;padding:5px;background:rgba(8,10,15,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(94,234,212,.35);animation:badgeGlow 4.5s ease-in-out infinite;}
+.logo-badge img{width:44px;height:44px;border-radius:8px;display:block;}
+.logo-badge:hover{border-color:rgba(94,234,212,.75);}
+@keyframes badgeGlow{0%,100%{box-shadow:0 0 14px rgba(94,234,212,.18),0 0 34px rgba(94,234,212,.08)}50%{box-shadow:0 0 26px rgba(94,234,212,.38),0 0 60px rgba(94,234,212,.16)}}
+.topbar{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin:0 0 20px;}
+.topbar a{color:var(--accent);text-decoration:none;}
+.topbar a:hover{text-decoration:underline;}
+
+/* герой: схема конвейера */
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding:60px 0 80px;}
+.hero-figure{border:1px solid var(--line-2);border-radius:18px;background:linear-gradient(160deg,#0d1216,#0a0a0a 60%);padding:34px;position:relative;overflow:hidden;}
+.hero-figure::after{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 80% -10%,rgba(94,234,212,.08),transparent);}
+.pipe{display:flex;flex-direction:column;gap:0;position:relative;}
+.pnode{display:flex;align-items:center;gap:12px;background:#0a0a0a;border:1px solid var(--line-2);border-radius:12px;padding:12px 14px;position:relative;}
+.pnode .ix{font-family:var(--mono);font-size:11px;color:var(--accent);width:34px;flex:none;}
+.pnode .nm{font-size:15px;font-weight:500;}
+.pnode .ds{font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+.plink{height:26px;width:1px;background:var(--accent-2);margin-left:47px;animation:pipeGlow 2.4s ease-in-out infinite;}
+@keyframes pipeGlow{0%,100%{opacity:.35}50%{opacity:1}}
+.pnode.ghost{opacity:.55;border-style:dashed;}
+.badge-tr{position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid rgba(94,234,212,.4);border-radius:999px;padding:4px 10px;letter-spacing:.12em;}
+
+.demo-hero{min-height:60vh;padding:40px 0 60px;display:flex;flex-direction:column;justify-content:center;}
+.meta{display:flex;gap:28px;flex-wrap:wrap;margin:24px 0 36px;font-family:var(--mono);font-size:12px;color:var(--ink-3);}
+.meta b{display:block;color:var(--ink);font-size:15px;margin-bottom:2px;}
+.meta span{color:var(--accent);}
+.cta{display:inline-flex;gap:18px;align-items:center;font-family:var(--mono);font-size:13px;color:var(--accent);text-decoration:none;border:1px solid rgba(94,234,212,.4);border-radius:999px;padding:10px 18px;transition:border-color .2s,background .2s;}
+.cta:hover{border-color:rgba(94,234,212,.75);background:rgba(94,234,212,.06);}
+
+/* flow-editor: нод-схема исполнительного слоя */
+.flow-editor{position:relative;background:linear-gradient(160deg,#0d1216,#0a0a0a 65%);border:1px solid var(--line-2);border-radius:18px;padding:36px;min-height:460px;overflow:hidden;}
+.flow-editor svg{position:absolute;inset:0;width:100%;height:100%;}
+.flow-editor svg path{stroke:rgba(45,212,191,.5);stroke-dasharray:4 4;fill:none;animation:dash 24s linear infinite;}
+@keyframes dash{to{stroke-dashoffset:-400;}}
+.node{position:absolute;background:#0a0a0a;border:1px solid var(--line-2);border-radius:12px;min-width:210px;max-width:250px;padding:0;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s;z-index:2;}
+.node:hover{border-color:rgba(94,234,212,.55);transform:translateY(-2px);}
+.node .head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);}
+.node .ix{font-family:var(--mono);font-size:10px;color:var(--accent);}
+.node .nm{font-size:14px;font-weight:600;padding:12px 14px 4px;}
+.node .desc{font-size:12px;color:var(--ink-2);padding:0 14px 8px;}
+.node .desc::after{display:block;content:"";}
+
+.flow-title{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin:0 0 8px;letter-spacing:.16em;text-transform:uppercase;}
+.hint{margin-top:20px;position:relative;font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+
+/* case-card: было → стало */
+.case-card{border:1px solid var(--line-2);border-radius:18px;padding:36px;background:#0d0d10;}
+.before-after{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch;margin:26px 0;}
+.ba-col{border:1px solid var(--line);border-radius:14px;padding:22px;background:#0a0a0a;}
+.ba-col.st{border-color:rgba(94,234,212,.5);}
+.ba-col h4{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin:0 0 12px;text-transform:uppercase;letter-spacing:.14em;}
+.ba-col.st h4{color:var(--accent);}
+.ba-big{font-size:clamp(38px,5vw,64px);font-weight:500;line-height:1;letter-spacing:-.03em;}
+.ba-big em{font-style:normal;font-family:var(--serif);color:var(--accent);font-size:.55em;}
+.ba-arrow{align-self:center;font-size:28px;color:var(--accent-2);}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;}
+.tools span{font-family:var(--mono);font-size:11px;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;}
+.numbers{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:24px 0;}
+.numbers div{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#0a0a0a;}
+.numbers div{color:var(--ink-3);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;}
+.numbers b{display:block;font-size:24px;color:var(--ink);font-family:-apple-system,"Segoe UI",sans-serif;font-weight:500;margin:4px 0 2px;letter-spacing:0;text-transform:none;}
+
+/* связка разведка → действие */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.two .card{border:1px solid var(--line);border-radius:14px;padding:24px;background:#0d0d10;}
+.two .card h3{font-size:18px;}
+.two .card p{font-size:14px;margin:0 0 8px;}
+.two .card .tag{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:8px;}
+.redlines{margin-top:22px;border:1px solid rgba(230,110,110,.35);border-radius:14px;padding:20px 24px;background:rgba(230,110,110,.05);}
+.redlines h3{font-size:16px;color:#ff9d9d;margin:0 0 10px;}
+.redlines ul{margin:0;padding-left:18px;color:var(--ink-2);font-size:14px;}
+.redlines li{margin:5px 0;}
+
+/* где жить */
+.deploy{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+.deploy div{border:1px solid var(--line-2);border-radius:14px;padding:22px;background:#0d0d10;}
+.deploy b{display:block;font-size:16px;margin:6px 0 6px;font-weight:600;}
+.deploy p{font-size:13px;margin:0;}
+.deploy .tag{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;}
+
+.note{margin:40px 0 0;border:1px solid var(--line);border-radius:16px;padding:28px 30px;background:#0d0d10;}
+.note p{color:var(--ink-2);font-size:15px;margin:0 0 10px;}
+.note b{color:var(--ink);}
+footer{border-top:1px solid var(--line);padding:32px 0 48px;font-family:var(--mono);font-size:12px;color:var(--ink-3);display:flex;gap:18px;flex-wrap:wrap;}
+footer a{color:var(--accent);text-decoration:none;}
+@media (max-width:840px){.hero-grid{grid-template-columns:1fr}.two,.before-after{grid-template-columns:1fr}.ba-arrow{visibility:hidden}.flow-editor{min-height:auto;padding:24px}.node{position:relative;left:auto!important;top:auto!important;width:100%;margin:0 0 10px}.flow-editor svg{display:none}.plink{margin-left:47px}}
+</style>
+</head>
+<body style="position:relative;">
+<a class="logo-badge" href="../../index.html" aria-label="Илья AI — на главную"><img src="../../assets/favicon-64.png" alt="Логотип — колибри"></a>
+<div class="wrap">
+  <div class="topbar"><a href="../index.html">Портфолио</a> › <span>case study 05 · Мультиагентные конвейеры</span></div>
+
+  <div class="hero-grid">
+    <div>
+      <div class="h-eyebrow">case study 05 · crewai + langgraph</div>
+      <h1>Мультиагентные <em>конвейеры</em></h1>
+      <p class="h-sub">Формула 99/1: агенты делают 99% рутины, человек стоит за результатом. Планирующий агент, исполнители, ревизор и трассировка — так построены мои конвейеры на CrewAI + LangGraph.</p>
+      <div class="meta">
+        <div><b>~1 мин</b><span>досье по одному URL</span></div>
+        <div><b>5/6</b><span>точность против эталона</span></div>
+        <div><b>0</b><span>действий наружу без слова человека</span></div>
+      </div>
+      <a class="cta" href="https://github.com/imaiorchikov-ilya/ilya-portfolio">код и наработки →</a>
+    </div>
+    <div class="hero-figure">
+      <div class="badge-tr">PIPELINE / RU</div>
+      <div class="pipe">
+        <div class="pnode"><span class="ix">01</span><span><span class="nm">Задача Ильи или клиента</span>&nbsp;<span class="ds">вход · постановка</span></span></div>
+        <div class="plink"></div>
+        <div class="pnode"><span class="ix">02</span><span><span class="nm">Планирующий агент</span>&nbsp;<span class="ds">разбивка на шаги</span></span></div>
+        <div class="plink"></div>
+        <div class="pnode"><span class="ix">03</span><span><span class="nm">Исполнители (сабагенты)</span>&nbsp;<span class="ds">поиск · разбор · письмо</span></span></div>
+        <div class="plink"></div>
+        <div class="pnode"><span class="ix">04</span><span><span class="nm">Ревизор</span>&nbsp;<span class="ds">сверка чек-листом</span></span></div>
+        <div class="plink"></div>
+        <div class="pnode ghost"><span class="ix">05</span><span><span class="nm">Человек</span>&nbsp;<span class="ds">приёмка · слово</span></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="demo-hero">
+<div class="wrap" style="padding-top:0">
+  <div class="h-eyebrow">архитектура</div>
+  <h2>Планирующий → исполнители → ревизор</h2>
+  <p>Каждый конвейер — это граф шагов: планировщик размечает задачу, сабагенты исполняют по ролям, ревизор проверяет результат до того, как его увидит человек. Вся трассировка пишется в лог — виден каждый ход каждого агента.</p>
+  <div class="flow-editor">
+    <svg viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M 295 105 C 460 105, 480 255, 618 258"/>
+      <path d="M 295 245 L 618 258"/>
+      <path d="M 295 385 C 460 385, 480 290, 618 272"/>
+      <path d="M 730 198 L 730 172"/>
+    </svg>
+    <div class="node" style="left:40px;top:50px;"><div class="head"><span class="ix">node-A</span><span class="ix">вход</span></div><div class="nm">Планирующий агент</div><div class="desc">разбивает задачу на шаги, назначает исполнителей</div></div>
+    <div class="node" style="left:40px;top:185px;"><div class="head"><span class="ix">node-B</span><span class="ix">роль</span></div><div class="nm">Сабагент «разведка»</div><div class="desc">собирает факты по URL/документам, пишет карточку</div></div>
+    <div class="node" style="left:40px;top:330px;"><div class="head"><span class="ix">node-C</span><span class="ix">роль</span></div><div class="nm">Сабагент «исполнитель»</div><div class="desc">готовит черновик действия — и останавливается</div></div>
+    <div class="node" style="left:620px;top:200px;"><div class="head"><span class="ix">node-D</span><span class="ix">контроль</span></div><div class="nm">Ревизор</div><div class="desc">сверяет результат с чек-листом, отправляет на доработку</div></div>
+    <div class="node" style="left:620px;top:40px;"><div class="head"><span class="ix">node-E</span><span class="ix">выход</span></div><div class="nm">Человек-приёмщик</div><div class="desc">принимает результат, даёт слово на действие наружу</div></div>
+  </div>
+  <p class="hint">схема исполнительного слоя · кликабельные ноды в демо-версии конвейеров</p>
+</div>
+</section>
+
+<section>
+<div class="wrap">
+  <div class="h-eyebrow">кейс · досье за минуту</div>
+  <h2>Досье по одному URL — за один проход</h2>
+  <p>До автоматизации профиль компании собирался поиском в 6 ходов: сайт, учредители, лицензии, контакты, риски, сводка. Веб-агент делает это за один проход: один URL на входе — структурированное досье на выходе.</p>
+  <div class="before-after">
+    <div class="ba-col">
+      <h4>было · руками</h4>
+      <div class="ba-big">6 <em>ходов</em></div>
+      <p style="font-size:13px;margin:10px 0 0;">разведки в браузере: сайт, учредители, лицензии, контакты — сборка в таблицу, потери между страницами</p>
+    </div>
+    <div class="ba-arrow">→</div>
+    <div class="ba-col st">
+      <h4>стало · агент</h4>
+      <div class="ba-big">~1 мин</div>
+      <p style="font-size:13px;margin:10px 0 0;">один URL → структурированное досье, каждая строка со ссылкой-источником</p>
+    </div>
+  </div>
+  <div class="numbers">
+    <div>точность · сверка с эталоном<b>5/6</b><span>полей совпали с эталонным досье</span></div>
+    <div>время · один проход<b>~1 мин</b><span>досье по одному URL</span></div>
+    <div>профили · конвейер<b>4</b><span>профиля под разные задачи</span></div>
+  </div>
+  <div class="tools"><span>CrewAI</span><span>LangGraph</span><span>структурированный вывод</span><span>трассировка → логи</span><span>эталонная приёмка</span></div>
+</div>
+</section>
+
+<section>
+<div class="wrap">
+  <div class="h-eyebrow">связка</div>
+  <h2>Разведка → действие</h2>
+  <p>Самое ценное в конвейере — стык: агент-разведчик не просто собирает факты, он готовит действия, которые человеку остаётся принять одним словом.</p>
+  <div class="two">
+    <div class="card">
+      <span class="tag">шаг 1 · разведка</span>
+      <h3>URL-агент: карточка компании</h3>
+      <p>Профиль и типы контактов, «тормоз-заметки» (куда не лезть), готовые строки для письма. Память — RAG-база «Вектор колибри» с evals.</p>
+    </div>
+    <div class="card">
+      <span class="tag">шаг 2 · действие</span>
+      <h3>Робот-руки: черновик без отправки</h3>
+      <p>Playwright открывает страницу контактов, заполняет форму, готовит черновик письма — и стоит. Отправляет только человек, своим словом.</p>
+    </div>
+  </div>
+  <div class="redlines">
+    <h3>красные линии (соблюдаются кодом, не обещанием)</h3>
+    <ul>
+      <li>агент не отправляет ничего наружу без слова человека</li>
+      <li>секреты не выходят в чат и не попадают в промпты — ключам только своё место</li>
+      <li>152-ФЗ: ПДн клиентов обезличиваются до запуска в облачные модели</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<section>
+<div class="wrap">
+  <div class="h-eyebrow">где жить</div>
+  <h2>Облако, гибрид или локально</h2>
+  <p>Одна и та же архитектура разворачивается по-разному — в зависимости от чувствительности данных и бюджета клиента.</p>
+  <div class="deploy">
+    <div><span class="tag">вариант 1</span><b>Облако</b><p>Быстрый старт на облачных моделях. Для данных, которые не боятся облака.</p></div>
+    <div><span class="tag">вариант 2</span><b>Гибрид + обезличивание</b><p>ПДн маскируются до отправки, живые данные остаются внутри. Облачная модель работает по обезличенным срезам.</p></div>
+    <div><span class="tag">вариант 3</span><b>Локально (Ollama)</b><p>Модели на своих машинах, ничего не уходит вовне. Для строгих 152-ФЗ контуров.</p></div>
+  </div>
+</div>
+</section>
+
+<div class="wrap">
+  <div class="note">
+    <div class="h-eyebrow">итог</div>
+    <h2 style="font-size:clamp(26px,3.4vw,38px)">Куда конвейер встаёт быстрее всего</h2>
+    <p style="max-width:800px"><b>Сбор досье и первичная разведка</b> по контрагентам и лидам · <b>однотипные документы</b>: разбор входящих, сопоставление с реестром, черновик ответа · <b>регулярные отчёты</b>, где 99% работы — механика и сверка. Конвейер отдаёт результат на приёмку человеку: 1% — за тем, кто за него отвечает.</p>
+    <p style="margin-top:14px;font-family:var(--mono);font-size:13px;"><a href="../index.html">← все проекты</a> · <a href="https://github.com/imaiorchikov-ilya/ilya-portfolio">открытый код на GitHub →</a></p>
+  </div>
+  <footer>
+    <span>ilya.ai · 2026</span> · case study 05 · crewai + langgraph · <a href="../index.html">портфолио</a>
+  </footer>
+</div>
+
+<script>
+const els=document.querySelectorAll('.reveal');
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+els.forEach(e=>io.observe(e));
+setTimeout(()=>els.forEach(e=>e.classList.add('in')),1500);
+function selectNode(n){const t=n.querySelector('.nm');if(t)alert(t.textContent);}
+</script>
+<script>document.querySelectorAll('.node').forEach(n=>n.addEventListener('click',()=>selectNode(n)));</script>
+</body>
+</html>
