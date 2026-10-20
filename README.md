@@ -68,6 +68,6 @@
 
 ## Контакты
 
-- Telegram · MAX: +7 905 940-65-50 — связь только в мессенджерах
+- Telegram: [@ilcore_m](https://t.me/ilcore_m) · MAX: +7 905 940-65-50 — связь только в мессенджерах
 - E-mail: imaiorchikov@gmail.com
 - [hh-резюме](https://omsk.hh.ru/resume/62ea9ccaff03b5e6570039ed1f4372706f3254) · [сайт-визитка](https://imaiorchikov-ilya.github.io/ilya-portfolio/ilya-vizitka/)
