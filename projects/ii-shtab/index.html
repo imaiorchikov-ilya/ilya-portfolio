@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ИИ-штаб компании под ключ — Илья AI · case study 06</title>
+<meta name="description" content="Корпоративный ИИ-штаб: датасет компании (документы → чанки → индекс) + связка ролевых агентов под конкретные задачи + демо-витрина. Демо на реальном бизнесе «Вектор колибри»: ответы строго по документам, с цитатами-источниками и честным отказом при отсутствии данных." />
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="64x64" href="../../assets/favicon-64.png" />
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon-180.png" />
+<meta name="theme-color" content="#050608" />
+<style>
+:root{--bg:#0a0a0a;--ink:#f5f5f7;--ink-2:#a8a8b3;--ink-3:#6b6b76;--accent:#5eead4;--accent-2:#2dd4bf;--line:rgba(245,245,247,.08);--line-2:rgba(245,245,247,.14);--mono:ui-monospace,"SF Mono",Cascadia Code,Menlo,Consolas,monospace;--serif:"Cormorant Garamond","Times New Roman",serif;}
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;background:var(--bg);}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;padding-top:84px;}
+h1,h2,h3,h4{line-height:1.15;letter-spacing:-.02em;}
+h1{font-size:clamp(34px,7vw,100px);font-weight:500;margin:0 0 28px;}
+h1 em{font-style:italic;font-family:var(--serif);font-weight:400;color:var(--accent);}
+h2{font-size:clamp(30px,4vw,44px);font-weight:500;margin:0 0 20px;letter-spacing:-.01em;}
+h3{font-size:clamp(22px,3vw,30px);font-weight:500;margin:0 0 14px;}
+p{color:var(--ink-2);font-size:17px;margin:0 0 16px;}
+a{color:var(--accent);}
+.h-eyebrow{font-family:var(--mono);font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.2em;}
+.h-eyebrow::before{content:"// ";}
+.h-sub{font-size:20px;color:var(--ink-2);max-width:760px;}
+section{padding:100px 0;border-top:1px solid var(--line);}
+.logo-badge{position:fixed;top:16px;left:16px;z-index:9999;display:block;line-height:0;border-radius:12px;padding:5px;background:rgba(8,10,15,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(94,234,212,.35);animation:badgeGlow 4.5s ease-in-out infinite;}
+.logo-badge img{width:44px;height:44px;border-radius:8px;display:block;}
+.logo-badge:hover{border-color:rgba(94,234,212,.75);}
+@keyframes badgeGlow{0%,100%{box-shadow:0 0 14px rgba(94,234,212,.18),0 0 34px rgba(94,234,212,.08)}50%{box-shadow:0 0 26px rgba(94,234,212,.38),0 0 60px rgba(94,234,212,.16)}}
+.topbar{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin:0 0 20px;}
+.topbar a{color:var(--accent);text-decoration:none;}
+.topbar a:hover{text-decoration:underline;}
+
+/* герой: схема пакета */
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding:60px 0 80px;}
+.hero-figure{border:1px solid var(--line-2);border-radius:18px;background:linear-gradient(160deg,#0d1216,#0a0a0a 60%);padding:34px;position:relative;overflow:hidden;}
+.hero-figure::after{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 80% -10%,rgba(94,234,212,.08),transparent);}
+.pipe{display:flex;flex-direction:column;gap:0;position:relative;}
+.pnode{display:flex;align-items:center;gap:12px;background:#0a0a0a;border:1px solid var(--line-2);border-radius:12px;padding:12px 14px;position:relative;}
+.pnode .ix{font-family:var(--mono);font-size:11px;color:var(--accent);width:34px;flex:none;}
+.pnode .nm{font-size:15px;font-weight:500;}
+.pnode .ds{font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+.plink{height:26px;width:1px;background:var(--accent-2);margin-left:47px;animation:pipeGlow 2.4s ease-in-out infinite;}
+@keyframes pipeGlow{0%,100%{opacity:.35}50%{opacity:1}}
+.badge-tr{position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid rgba(94,234,212,.4);border-radius:999px;padding:4px 10px;letter-spacing:.12em;}
+
+.demo-hero{min-height:50vh;padding:40px 0 60px;display:flex;flex-direction:column;justify-content:center;}
+.meta{display:flex;gap:28px;flex-wrap:wrap;margin:24px 0 36px;font-family:var(--mono);font-size:12px;color:var(--ink-3);}
+.meta b{display:block;color:var(--ink);font-size:15px;margin-bottom:2px;}
+.meta span{color:var(--accent);}
+.cta{display:inline-flex;gap:18px;align-items:center;font-family:var(--mono);font-size:13px;color:var(--accent);text-decoration:none;border:1px solid rgba(94,234,212,.4);border-radius:999px;padding:10px 18px;transition:border-color .2s,background .2s;}
+.cta:hover{border-color:rgba(94,234,212,.75);background:rgba(94,234,212,.06);}
+
+/* flow-editor: доска агентов */
+.flow-editor{position:relative;background:linear-gradient(160deg,#0d1216,#0a0a0a 65%);border:1px solid var(--line-2);border-radius:18px;padding:36px;min-height:420px;overflow:hidden;}
+.flow-editor svg{position:absolute;inset:0;width:100%;height:100%;}
+.flow-editor svg path{stroke:rgba(45,212,191,.5);stroke-dasharray:4 4;fill:none;animation:dash 24s linear infinite;}
+@keyframes dash{to{stroke-dashoffset:-400;}}
+.node{position:absolute;background:#0a0a0a;border:1px solid var(--line-2);border-radius:12px;min-width:210px;max-width:250px;padding:0;overflow:hidden;transition:border-color .2s,transform .2s;z-index:2;}
+.node:hover{border-color:rgba(94,234,212,.55);transform:translateY(-2px);}
+.node .head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);}
+.node .ix{font-family:var(--mono);font-size:10px;color:var(--accent);}
+.node .nm{font-size:14px;font-weight:600;padding:12px 14px 4px;}
+.node .desc{font-size:12px;color:var(--ink-2);padding:0 14px 12px;}
+.flow-title{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin:0 0 8px;letter-spacing:.16em;text-transform:uppercase;}
+.hint{margin-top:20px;position:relative;font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+
+/* чат-демо: честный ответ vs отказ */
+.demo-chat{border:1px solid var(--line-2);border-radius:18px;background:#0d0d10;padding:28px 30px;margin:26px 0 0;display:grid;gap:14px;}
+.msg{border:1px solid var(--line);border-radius:12px;padding:14px 18px;background:#0a0a0a;}
+.msg .from{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:6px;}
+.msg.staff .from{color:var(--accent-2);}
+.msg.bot .from{color:var(--accent);}
+.msg p{font-size:14px;margin:0;}
+.srcs{font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
+.srcs span{border:1px solid rgba(94,234,212,.35);border-radius:999px;padding:2px 9px;color:var(--accent);}
+.msg.no .srcs span{border-color:rgba(230,110,110,.4);color:#ff9d9d;}
+
+.case-card{border:1px solid var(--line-2);border-radius:18px;padding:36px;background:#0d0d10;}
+.before-after{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch;margin:26px 0;}
+.ba-col{border:1px solid var(--line);border-radius:14px;padding:22px;background:#0a0a0a;}
+.ba-col.st{border-color:rgba(94,234,212,.5);}
+.ba-col h4{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin:0 0 12px;text-transform:uppercase;letter-spacing:.14em;}
+.ba-col.st h4{color:var(--accent);}
+.ba-big{font-size:clamp(38px,5vw,64px);font-weight:500;line-height:1;letter-spacing:-.03em;}
+.ba-big em{font-style:normal;font-family:var(--serif);color:var(--accent);font-size:.55em;}
+.ba-arrow{align-self:center;font-size:28px;color:var(--accent-2);}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;}
+.tools span{font-family:var(--mono);font-size:11px;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;}
+.numbers{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:24px 0;}
+.numbers div{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#0a0a0a;color:var(--ink-3);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;}
+.numbers b{display:block;font-size:24px;color:var(--ink);font-family:-apple-system,"Segoe UI",sans-serif;font-weight:500;margin:4px 0 2px;letter-spacing:0;text-transform:none;}
+
+.redlines{margin-top:22px;border:1px solid rgba(230,110,110,.35);border-radius:14px;padding:20px 24px;background:rgba(230,110,110,.05);}
+.redlines h3{font-size:16px;color:#ff9d9d;margin:0 0 10px;}
+.redlines ul{margin:0;padding-left:18px;color:var(--ink-2);font-size:14px;}
+.redlines li{margin:5px 0;}
+
+.deploy{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+.deploy div{border:1px solid var(--line-2);border-radius:14px;padding:22px;background:#0d0d10;}
+.deploy b{display:block;font-size:16px;margin:6px 0 6px;font-weight:600;}
+.deploy p{font-size:13px;margin:0;}
+.deploy .tag{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;}
+
+.note{margin:40px 0 0;border:1px solid var(--line);border-radius:16px;padding:28px 30px;background:#0d0d10;}
+.note p{color:var(--ink-2);font-size:15px;margin:0 0 10px;}
+.note b{color:var(--ink);}
+footer{border-top:1px solid var(--line);padding:32px 0 48px;font-family:var(--mono);font-size:12px;color:var(--ink-3);display:flex;gap:18px;flex-wrap:wrap;}
+footer a{color:var(--accent);text-decoration:none;}
+@media (max-width:840px){.hero-grid{grid-template-columns:1fr}.before-after{grid-template-columns:1fr}.ba-arrow{visibility:hidden}.flow-editor{min-height:auto;padding:24px}.node{position:relative;left:auto!important;top:auto!important;width:100%;margin:0 0 10px}.flow-editor svg{display:none}}
+</style>
+</head>
+<body style="position:relative;">
+<a class="logo-badge" href="../../index.html" aria-label="Илья AI — на главную"><img src="../../assets/favicon-64.png" alt="Логотип — колибри"></a>
+<div class="wrap">
+  <div class="topbar"><a href="../index.html">Портфолио</a> › <span>case study 06 · ИИ-штаб компании под ключ</span></div>
+
+  <div class="hero-grid">
+    <div>
+      <div class="h-eyebrow">case study 06 · ии-штаб под ключ</div>
+      <h1>ИИ-штаб <em>компании</em></h1>
+      <p class="h-sub">Корпоративный датасет из документов клиента + связка ролевых агентов под конкретные задачи + демо-витрина. Агенты отвечают строго по документам компании: цитаты-источники к каждому ответу, честный отказ, если данных нет.</p>
+      <div class="meta">
+        <div><b>11 → 95</b><span>документов → чанков в датасете демо</span></div>
+        <div><b>3 агента</b><span>роли · задача каждой — своя</span></div>
+        <div><b>7–12 с</b><span>живой ответ штаба с источниками</span></div>
+      </div>
+      <a class="cta" href="https://github.com/imaiorchikov-ilya/ilya-portfolio">код и наработки →</a>
+    </div>
+    <div class="hero-figure">
+      <div class="badge-tr">PACKET / RU</div>
+      <div class="pipe">
+        <div class="pnode"><span class="ix">01</span><span><span class="nm">Документы клиента</span>&nbsp;<span class="ds">регламенты · КП · планы</span></span></div>
+        <div class="plink"></div>
+        <div class="pnode"><span class="ix">02</span><span><span class="nm">Корпоративный датасет</span>&nbsp;<span class="ds">чанки · индекс · поиск</span></span></div>
+        <div class="plink"></div>
+        <div class="pnode"><span class="ix">03</span><span><span class="nm">Ролевые агенты</span>&nbsp;<span class="ds">маркетинг · запросы · дайджест</span></span></div>
+        <div class="plink"></div>
+        <div class="pnode"><span class="ix">04</span><span><span class="nm">Демо-витрина</span>&nbsp;<span class="ds">граф знаний · живой вопрос-ответ</span></span></div>
+        <div class="plink"></div>
+        <div class="pnode" style="opacity:.55;border-style:dashed;"><span class="ix">05</span><span><span class="nm">Человек</span>&nbsp;<span class="ds">приёмка · решение</span></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="demo-hero">
+<div class="wrap" style="padding-top:0">
+  <div class="h-eyebrow">архитектура</div>
+  <h2>Датасет → роли → контроль</h2>
+  <p>В основе — датасет, собранный из документов компании: разбор на чанки, индекс, поиск по смыслу. Поверх — ролевые агенты, у каждого свой промпт под свою задачу. Контроль галлюцинаций встроен в роли: отвечай только по базе, показывай источники, не знаешь — отказывайся честно.</p>
+  <div class="flow-editor">
+    <svg viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M 300 120 C 460 120, 480 250, 620 258"/>
+      <path d="M 300 250 L 620 258"/>
+      <path d="M 300 380 C 460 380, 480 300, 620 272"/>
+      <path d="M 735 200 L 735 160"/>
+    </svg>
+    <div class="node" style="left:30px;top:30px;"><div class="head"><span class="ix">ds-01</span><span class="ix">вход</span></div><div class="nm">Датасет компании</div><div class="desc">документы → чанки → индекс; поиск по смыслу, каждая строка с источником</div></div>
+    <div class="node" style="left:30px;top:180px;"><div class="head"><span class="ix">ag-01</span><span class="ix">роль</span></div><div class="nm">Агент «маркетинг»</div><div class="desc">тарифы, КП, продукт-линии — только факты из базы</div></div>
+    <div class="node" style="left:30px;top:330px;"><div class="head"><span class="ix">ag-02</span><span class="ix">роль</span></div><div class="nm">Агент «запросы»</div><div class="desc">разбор клиентского вопроса → ответ со ссылками на документы</div></div>
+    <div class="node" style="left:620px;top:190px;"><div class="head"><span class="ix">ag-03</span><span class="ix">роль</span></div><div class="nm">Агент «дайджест»</div><div class="desc">сводка по теме из базы, без домыслов</div></div>
+    <div class="node" style="left:620px;top:40px;"><div class="head"><span class="ix">cn-01</span><span class="ix">контроль</span></div><div class="nm">Анти-галлюцинация</div><div class="desc">нет данных в базе → «ответа нет», а не выдумка; решение — за человеком</div></div>
+  </div>
+</div>
+</section>
+
+<section>
+<style>
+/* видимость слоя чата внутри demo-hero */
+</style>
+<div class="wrap">
+  <div class="h-eyebrow">кейс · демо на реальном бизнесе</div>
+  <h2>Вектор колибри: спросить вместо листать</h2>
+  <p>Демо-пакет собран на материалах реального проекта «Вектор колибри»: 11 корпоративных документов (бизнес-план, КП, презентация, плейбук, план автоматизации…) — это их датасет. Демо-штаб отвечает на вопросы сотрудника или клиента, показывая, из какого документа взята каждая строка.</p>
+  <div class="case-card">
+    <div class="demo-chat" style="margin:0">
+      <div class="msg staff"><span class="from">сотрудник</span><p>Какие у нас тарифы и что в них входит?</p></div>
+      <div class="msg bot"><span class="from">штаб · агент «маркетинг»</span><p>Тарифы: «Демо» — 0 ₽, «Старт» — 60 000 ₽, «Качество» — 20 000 ₽/мес, «Локальный контур» — от 120 000 ₽. Полное описание уровней и состава — в КП.</p><div class="srcs"><span>[1] КП · тарифы</span><span>[2] бизнес-план</span><span>[3] презентация · продукт</span></div></div>
+      <div class="msg staff"><span class="from">сотрудник</span><p>А какая юридическая защита при спорах с клиентами?</p></div>
+      <div class="msg bot no"><span class="from">штаб · агент «запросы»</span><p>В базе знаний ответа по этой теме нет. По регламенту штаба: если данных в документах компании нет — я не выдумываю. Такой вопрос стоит передать человеку.</p><div class="srcs"><span>источников в базе: 0</span><span>отказ · честный</span></div></div>
+    </div>
+    <p class="hint">первый ответ — формат живого прогона 21.10 (цифры тарифов — из базы); второй — формат честного отказа</p>
+  </div>
+  <div class="numbers">
+    <div>документов в датасете<b>11</b><span>бизнес-план, КП, презентация, плейбук…</span></div>
+    <div>чанков после разбора<b>95</b><span>с индексом и смысл-поиском</span></div>
+    <div>ролевых агентов<b>3</b><span>+ общий режим «Штаб»</span></div>
+  </div>
+  <div class="tools"><span>Python</span><span>BM25 + RAG</span><span>ролевые промпты</span><span>анти-галлюцинация</span><span>ответы с источниками</span><span>граф-витрина: 14 узлов, hover-подблоки</span><span>приёмки программные: 0 перекрытий, консоль 0</span></div>
+</div>
+</section>
+
+<section>
+<div class="wrap">
+  <div class="h-eyebrow">под ключ</div>
+  <h2>Три шага разворачивания у клиента</h2>
+  <p>Пакет собирается под конкретную компанию за неделю: неделя датасет + агенты = рабочее демо, дальше — калибровка под реальные задачи сотрудников.</p>
+  <div class="deploy">
+    <div><span class="tag">шаг 1</span><b>Датасет</b><p>Собираем документы компании в датасет: чанки, индекс, поиск. Скраббер проверяет: секреты и персональные данные — не выходят.</p></div>
+    <div><span class="tag">шаг 2</span><b>Агенты под задачи</b><p>3–5 ролей под реальные задачи из 6–8 категорий (маркетинг, продажи, контент, найм, ресёрч). Каждая — со своим промптом и контролем.</p></div>
+    <div><span class="tag">шаг 3</span><b>Витрина и сопровождение</b><p>Демо-витрина для сотрудников и продаж, обучение, пополнение датасета по ходу. Подписка на поддержку.</p></div>
+  </div>
+  <div class="redlines">
+    <h3>красные линии (в коде, не в обещаниях)</h3>
+    <ul>
+      <li>агент отвечает только по датасету компании: нет данных → честный отказ «в базе ответа нет», а не фантазия</li>
+      <li>каждый ответ — с цитатами и источниками, всегда видно, откуда строка</li>
+      <li>юридически значимые решения остаются за человеком — штаб готовит черновик, слово за сотрудником</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<div class="wrap">
+  <div class="note">
+    <div class="h-eyebrow">итог</div>
+    <h2 style="font-size:clamp(26px,3.4vw,38px)">Куда штаб встаёт быстрее всего</h2>
+    <p style="max-width:800px"><b>Компании с накопленной базой документов</b>, где знания у сотрудников лежат в файлах, а не в головах · <b>продажа услуг</b>, где менеджер отвечает на одни и те же вопросы из одних и тех же КП · <b>онбординг новичков</b>: «спроси штаб» вместо недели чтения регламентов. Демо-пакет «ИИ-штаб. Колибри» — живое доказательство: собирается за один вечер, работает на документах клиента.</p>
+    <p style="margin-top:14px;font-family:var(--mono);font-size:13px;"><a href="../index.html">← все проекты</a> · <a href="https://github.com/imaiorchikov-ilya/ilya-portfolio">открытый код на GitHub →</a></p>
+  </div>
+  <footer>
+    <span>ilya.ai · 2026</span> · case study 06 · ии-штаб под ключ · <a href="../index.html">портфолио</a>
+  </footer>
+</div>
+
+</body>
+</html>
